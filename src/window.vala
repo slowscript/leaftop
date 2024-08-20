@@ -36,26 +36,27 @@ namespace Leaftop {
             var model = new Gtk.TreeListModel(listStore, false, true, createModelFunc);
             var tree_sorter = new Gtk.TreeListRowSorter(column_view.sorter);
             var sort_model = new Gtk.SortListModel(model, tree_sorter);
-            var selection = new Gtk.NoSelection(sort_model);
-            //selection.can_unselect = true;
+            var selection = new Gtk.SingleSelection(sort_model);
+            selection.can_unselect = true;
+            selection.autoselect = false;
             column_view.model = selection;
             column_view.show_column_separators = true;
             
             var column_pid = new Gtk.ColumnViewColumn(_("PID"), column_pid_factory);
-            column_pid.sorter = new PidSorter();
+            column_pid.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "PID"));;
             this.column_view.append_column(column_pid);
             var column_name = new Gtk.ColumnViewColumn(_("Process"), column_name_factory);
-            column_name.sorter = new NameSorter();
+            column_name.sorter = new Gtk.StringSorter(new Gtk.PropertyExpression(typeof(Process), null, "Name"));
             column_name.expand = true;
             this.column_view.append_column(column_name);
             var column_cpu = new Gtk.ColumnViewColumn(_("CPU%"), column_cpu_factory);
-            column_cpu.sorter = new CpuSorter();
+            column_cpu.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "CpuUtil"));
             this.column_view.append_column(column_cpu);
             var column_mem = new Gtk.ColumnViewColumn(_("Memory"), column_mem_factory);
-            column_mem.sorter = new MemSorter();
+            column_mem.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "MemTreeUsage"));
             this.column_view.append_column(column_mem);
             var column_disk = new Gtk.ColumnViewColumn(_("Disk"), column_disk_factory);
-            column_disk.sorter = new DiskSorter();
+            column_disk.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "DiskUse"));
             this.column_view.append_column(column_disk);
 
             this.watcher = new ProcessWatcher(listStore);
@@ -131,96 +132,6 @@ namespace Leaftop {
             //FIXME: bindings are leaking memory (maybe)
             var binding = proc.bind_property(prop, label, "label", GLib.BindingFlags.SYNC_CREATE);
             obj.set_data("binding", binding);
-        }
-    }
-
-    private class MemSorter : Gtk.Sorter {
-        public override Gtk.Ordering compare(GLib.Object? item1, GLib.Object? item2) {
-            assert_nonnull(item1);
-            assert_nonnull(item2);
-            Process p1 = (Process)item1;
-            Process p2 = (Process)item2;
-            if (p1.MemTreeUsage > p2.MemTreeUsage)
-                return Gtk.Ordering.LARGER;
-            else if (p2.MemTreeUsage > p1.MemTreeUsage)
-                return Gtk.Ordering.SMALLER;
-            else return Gtk.Ordering.EQUAL;
-        }
-
-        public override Gtk.SorterOrder get_order() {
-            return Gtk.SorterOrder.PARTIAL;
-        }
-    }
-
-    private class PidSorter : Gtk.Sorter {
-        public override Gtk.Ordering compare(GLib.Object? item1, GLib.Object? item2) {
-            assert_nonnull(item1);
-            assert_nonnull(item2);
-            Process p1 = (Process)item1;
-            Process p2 = (Process)item2;
-            if (p1.PID > p2.PID)
-                return Gtk.Ordering.LARGER;
-            else if (p2.PID > p1.PID)
-                return Gtk.Ordering.SMALLER;
-            else return Gtk.Ordering.EQUAL;
-        }
-
-        public override Gtk.SorterOrder get_order() {
-            return Gtk.SorterOrder.TOTAL;
-        }
-    }
-
-    private class DiskSorter : Gtk.Sorter {
-        public override Gtk.Ordering compare(GLib.Object? item1, GLib.Object? item2) {
-            assert_nonnull(item1);
-            assert_nonnull(item2);
-            Process p1 = (Process)item1;
-            Process p2 = (Process)item2;
-            if (p1.DiskUse > p2.DiskUse)
-                return Gtk.Ordering.LARGER;
-            else if (p2.DiskUse > p1.DiskUse)
-                return Gtk.Ordering.SMALLER;
-            else return Gtk.Ordering.EQUAL;
-        }
-
-        public override Gtk.SorterOrder get_order() {
-            return Gtk.SorterOrder.PARTIAL;
-        }
-    }
-
-    private class CpuSorter : Gtk.Sorter {
-        public override Gtk.Ordering compare(GLib.Object? item1, GLib.Object? item2) {
-            assert_nonnull(item1);
-            assert_nonnull(item2);
-            Process p1 = (Process)item1;
-            Process p2 = (Process)item2;
-            if (p1.CpuUtil > p2.CpuUtil)
-                return Gtk.Ordering.LARGER;
-            else if (p2.CpuUtil > p1.CpuUtil)
-                return Gtk.Ordering.SMALLER;
-            else return Gtk.Ordering.EQUAL;
-        }
-
-        public override Gtk.SorterOrder get_order() {
-            return Gtk.SorterOrder.PARTIAL;
-        }
-    }
-
-    private class NameSorter : Gtk.Sorter {
-        public override Gtk.Ordering compare(GLib.Object? item1, GLib.Object? item2) {
-            assert_nonnull(item1);
-            assert_nonnull(item2);
-            Process p1 = (Process)item1;
-            Process p2 = (Process)item2;
-            if (p1.Name > p2.Name)
-                return Gtk.Ordering.LARGER;
-            else if (p2.Name > p1.Name)
-                return Gtk.Ordering.SMALLER;
-            else return Gtk.Ordering.EQUAL;
-        }
-
-        public override Gtk.SorterOrder get_order() {
-            return Gtk.SorterOrder.PARTIAL;
         }
     }
 }
