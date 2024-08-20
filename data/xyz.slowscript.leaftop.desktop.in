@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Leaftop
+Exec=leaftop
+Icon=xyz.slowscript.leaftop
+Terminal=false
+Type=Application
+Categories=GTK;System;Monitor;
+StartupNotify=true

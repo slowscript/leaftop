@@ -1,0 +1,82 @@
+# Czech translations for leaftop package.
+# Copyright (C) 2024 slowscript
+# This file is distributed under the same license as the leaftop package.
+# slowscript, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: leaftop\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-08-20 09:45+0200\n"
+"PO-Revision-Date: 2024-08-20 09:18+0200\n"
+"Last-Translator: slowscript\n"
+"Language-Team: none\n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+
+#: data/xyz.slowscript.leaftop.desktop.in:3
+#: data/xyz.slowscript.leaftop.metainfo.xml.in:5
+msgid "Leaftop"
+msgstr ""
+
+#: data/xyz.slowscript.leaftop.metainfo.xml.in:6
+msgid "Graphical process manager and system monitor"
+msgstr "Grafický správce procesů a systémový monitor"
+
+#: data/xyz.slowscript.leaftop.metainfo.xml.in:10
+msgid "No description"
+msgstr ""
+
+#: src/gtk/help-overlay.ui:11
+msgctxt "shortcut window"
+msgid "General"
+msgstr "Obecné"
+
+#: src/gtk/help-overlay.ui:14
+msgctxt "shortcut window"
+msgid "Show Shortcuts"
+msgstr "Zobrazit klávesové zkratky"
+
+#: src/gtk/help-overlay.ui:20
+msgctxt "shortcut window"
+msgid "Quit"
+msgstr "Ukončit"
+
+#: src/window.vala:44
+msgid "PID"
+msgstr "PID"
+
+#: src/window.vala:47
+msgid "Process"
+msgstr "Proces"
+
+#: src/window.vala:51
+msgid "CPU%"
+msgstr "% CPU"
+
+#: src/window.vala:54
+msgid "Memory"
+msgstr "Paměť"
+
+#: src/window.vala:57
+msgid "Disk"
+msgstr "Disk"
+
+#: src/window.ui:14
+msgid "Menu"
+msgstr "Menu"
+
+#: src/window.ui:36
+msgid "_Preferences"
+msgstr "_Možnosti"
+
+#: src/window.ui:40
+msgid "_Keyboard Shortcuts"
+msgstr "_Klávesové zkratky"
+
+#: src/window.ui:44
+msgid "_About leaftop"
+msgstr "_O aplikaci"

@@ -1,0 +1,5 @@
+data/xyz.slowscript.leaftop.desktop.in
+data/xyz.slowscript.leaftop.metainfo.xml.in
+src/gtk/help-overlay.ui
+src/window.vala
+src/window.ui
