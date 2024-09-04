@@ -1,7 +1,7 @@
 namespace Leaftop {
     class Process : Object {
 
-        public int PID;
+        public int PID { get; private set; }
         public int ParentID = 0; // 0 = no parent
         public weak Process? Parent = null;
         public Gee.ArrayList<weak Process> Children = new Gee.ArrayList<weak Process>();
@@ -51,7 +51,8 @@ namespace Leaftop {
                 this.MemUsage = 0;
             long cpuTime = getCpuTime();
             float utilTime = (cpuTime - prevCpuTime) / (float)ProcessWatcher.CLK_TCK;
-            CpuUtil = utilTime / (ProcessWatcher.UPDATE_INTERVAL / 1000.0f) * 100.0f / 4.0f; //TODO: 4 -> cpu count
+            //TODO: get_num_processors reports only processors available to this process
+            CpuUtil = utilTime / (ProcessWatcher.UPDATE_INTERVAL / 1000.0f) * 100.0f / get_num_processors();
             CpuUtilStr = "%.1f".printf(CpuUtil);
             prevCpuTime = cpuTime;
             long disk = getDiskRWTotal();

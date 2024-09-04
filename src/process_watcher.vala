@@ -81,8 +81,9 @@ namespace Leaftop {
         private bool update() {
             // Update known processes, remove ones that disappeared
             List<int> pidsRemoved = new List<int>();
+            List<Process> newProcesses = new List<Process>();
             foreach (Process p in processes.values) {
-                int? knownParent = p.ParentID;
+                int knownParent = p.ParentID;
                 if (!p.update()) {
                     //Process is gone
                     //print("Removed '%s' (%i), parent '%s'\n", p.Name, p.PID, p.Parent?.Name);
@@ -103,8 +104,17 @@ namespace Leaftop {
                 } else {
                     if (p.ParentID != knownParent) {
                         print("%i (%s) was reparented from %i to %i\n", p.PID, p.Name, knownParent, p.ParentID);
-                        processes[knownParent].Children.remove(p);
-                        // TODO: correct parent and liststore assignment
+                        if (knownParent != 0)
+                            processes[knownParent].Children.remove(p);
+                        // Remove from store
+                        ListStore store = p.ParentID == 0 ? listStore : childStores.get(p.ParentID);
+                        if (store != null) {
+                            uint pos;
+                            if (store.find(p, out pos))
+                                store.remove(pos);
+                        }
+                        // Will add back to tree later
+                        newProcesses.append(p);
                     }
                 }
             }
@@ -112,7 +122,6 @@ namespace Leaftop {
                 processes.unset(pid);
             }
             try {
-                List<Process> newProcesses = new List<Process>();
                 foreach (int pid in loadAllPIDs()) {
                     if (!(pid in processes.keys)) {
                         var proc = new Process(pid);
@@ -141,7 +150,7 @@ namespace Leaftop {
                 p.updateTreeMem();
             }
             if (mSorter != null)
-                mSorter.changed(Gtk.SorterChange.DIFFERENT); //Force re-sorting; TODO: Maybe there is a better way?
+                mSorter.changed(Gtk.SorterChange.DIFFERENT); //Force re-sorting
             return true;
         }
     }
