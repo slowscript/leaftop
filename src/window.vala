@@ -76,7 +76,7 @@ namespace Leaftop {
 
         private void setup_expander_cell(Object obj) {
             var cell = (Gtk.ColumnViewCell)obj;
-            var label = new Gtk.Label("");
+            var label = new ProcessNameCell();
             var expander = new Gtk.TreeExpander();
             expander.set_child(label);
             cell.set_child(expander);
@@ -100,8 +100,8 @@ namespace Leaftop {
                 expander.hide_expander = proc.Children.size == 0;
                 //row.expanded = row.depth > 0;
             } else proc = (Process)cell.item;
-            //((Gtk.Label)expander.child).label = proc.Name;
-            var binding = proc.bind_property("Name", expander.child, "label", BindingFlags.SYNC_CREATE);
+            ((ProcessNameCell)expander.child).Icon = proc.Icon;
+            var binding = proc.bind_property("Name", expander.child, "Name", BindingFlags.SYNC_CREATE);
             obj.set_data("binding", binding);
         }
         private void column_pid_bind(Object obj) {

@@ -8,6 +8,7 @@ namespace Leaftop {
         public string Name { get; private set; }
         public string CmdLine { get; private set; }
         public string ExeName { get; private set; }
+        public Icon Icon { get; set; }
         public int MemUsage { get; private set; }
         public int MemTreeUsage { get; private set; }
         public string MemString { get; private set; }

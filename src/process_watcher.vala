@@ -7,12 +7,19 @@ namespace Leaftop {
         private ListStore listStore;
         public Gee.HashMap<int, ListStore> childStores = new Gee.HashMap<int, ListStore>();
         private Gee.HashMap<int, Process> processes;
+        private Gee.HashMap<string, AppInfo> installedApps = new Gee.HashMap<string, AppInfo>();
 
         internal weak Gtk.Sorter mSorter;
 
         public ProcessWatcher(ListStore store) {
             listStore = store;
             CLK_TCK = Posix.sysconf(Posix._SC_CLK_TCK);
+            var apps = AppInfo.get_all();
+            foreach (AppInfo app in apps) {
+                var exe = app.get_executable();
+                if (exe != "sh" && exe != "env" && app.should_show())
+                    installedApps.set(exe, app);
+            }
         }
 
         public void startWatching() {
@@ -55,6 +62,7 @@ namespace Leaftop {
             Gee.HashMap<int, Process> ps = new Gee.HashMap<int, Process>();
             foreach (int pid in loadAllPIDs()) {
                 var proc = new Process(pid);
+                proc.Icon = get_icon(proc);
                 ps.set(pid, proc);
             }
             return ps;
@@ -76,6 +84,18 @@ namespace Leaftop {
                 isRoot = true;
             }
             return isRoot;
+        }
+
+        private Icon get_icon(Process p) {
+            AppInfo app = installedApps.get(p.CmdLine); //FIXME: CmdLine does not contain arguments at this point but it has the full exe path
+            if (app != null) {
+                return app.get_icon();
+            }
+            app = installedApps.get(p.ExeName);
+            if (app != null) {
+                return app.get_icon();
+            }
+            return new ThemedIcon("application-x-executable");
         }
 
         private bool update() {
@@ -125,6 +145,7 @@ namespace Leaftop {
                 foreach (int pid in loadAllPIDs()) {
                     if (!(pid in processes.keys)) {
                         var proc = new Process(pid);
+                        proc.Icon = get_icon(proc);
                         processes.set(proc.PID, proc);
                         newProcesses.append(proc);
                         //print("New process '%s' (%i)\n", proc.Name, proc.PID);

@@ -5,6 +5,7 @@ leaftop_sources = [
   'window.vala',
   'process.vala',
   'process_watcher.vala',
+  'process_name_cell.vala',
   'utils.vala',
 ]
 
