@@ -16,6 +16,8 @@ namespace Leaftop {
 
         public override void activate () {
             base.activate ();
+            print("\nLeaftop v%s\n", BuildConfig.VERSION);
+            print("num_processors: %u\n", get_num_processors());
             var win = this.active_window;
             if (win == null) {
                 win = new Leaftop.Window (this);

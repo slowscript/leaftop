@@ -15,7 +15,7 @@ leaftop_sources += gnome.compile_resources('leaftop-resources',
 )
 
 leaftop_deps = [
-  dependency('gtk4'),
+  dependency('gtk4', version:'>=4.10'),
   dependency('gio-2.0'),
   dependency('gee-0.8'),
   meson.get_compiler('vala').find_library('posix')

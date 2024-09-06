@@ -25,10 +25,12 @@ namespace Leaftop {
         public Process(int pid) {
             PID = pid;
             CmdLine = readProcFile("cmdline");
-            // FIXME: Arguments are behind \0, but they are not read correctly
-            var exePath = CmdLine/*.split("\0")[0]*/.split("/");
-            if (exePath.length > 0) {
-                ExeName = exePath[exePath.length-1];
+            if (CmdLine != null) {
+                // FIXME: Arguments are behind \0, but they are not read correctly
+                var exePath = CmdLine/*.split("\0")[0]*/.split("/");
+                if (exePath.length > 0) {
+                    ExeName = exePath[exePath.length-1];
+                } else ExeName = "";
             } else ExeName = "";
             prevCpuTime = getCpuTime();
             prevDiskRW = getDiskRWTotal();
@@ -56,7 +58,7 @@ namespace Leaftop {
             long cpuTime = getCpuTime();
             float utilTime = (cpuTime - prevCpuTime) / (float)ProcessWatcher.CLK_TCK;
             //TODO: get_num_processors reports only processors available to this process
-            CpuUtil = utilTime / (ProcessWatcher.UPDATE_INTERVAL / 1000.0f) * 100.0f / get_num_processors();
+            CpuUtil = utilTime / (ProcessWatcher.UPDATE_INTERVAL / 1000.0f) * 100.0f;// / get_num_processors();
             CpuUtilStr = "%.1f".printf(CpuUtil);
             prevCpuTime = cpuTime;
             long disk = getDiskRWTotal();

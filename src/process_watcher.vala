@@ -1,9 +1,9 @@
 namespace Leaftop {
     class ProcessWatcher {
-        public const int UPDATE_INTERVAL = 1000;
+        public const int UPDATE_INTERVAL = 2000;
         public static long CLK_TCK;
 
-        const string[] CommonRoots = {"systemd", "cinnamon", "cinnamon-launcher", "cinnamon-session", "lightdm"};
+        const string[] CommonRoots = {"systemd", "cinnamon", "cinnamon-launcher", "cinnamon-session", "cinnamon-session-binary", "lightdm"};
         private ListStore listStore;
         public Gee.HashMap<int, ListStore> childStores = new Gee.HashMap<int, ListStore>();
         private Gee.HashMap<int, Process> processes;
@@ -17,7 +17,7 @@ namespace Leaftop {
             var apps = AppInfo.get_all();
             foreach (AppInfo app in apps) {
                 var exe = app.get_executable();
-                if (exe != "sh" && exe != "env" && app.should_show())
+                if (exe != "sh" && exe != "env")
                     installedApps.set(exe, app);
             }
         }
