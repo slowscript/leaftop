@@ -43,7 +43,10 @@ namespace Leaftop {
             string n = getStatusValue("Name"); //readProcFile("comm");
             if (ExeName.has_prefix(n))
                 n = ExeName;
-            this.Name = n;
+            if (n == "bwrap" && Parent == null && Children.size > 0)
+                this.Name = n + " (" + Children.get(0)?.getBwrapName() + ")";
+            else
+                this.Name = n;
             this.ParentID = int.parse(getStatusValue("PPid"));
             this.rssAnon = getStatusValue("RssAnon");
             if (rssAnon != null)
@@ -81,11 +84,15 @@ namespace Leaftop {
             }
         }
 
-        public int getTreeMem() {
-            int total = this.MemUsage;
-            foreach (Process c in Children)
-                total += c.getTreeMem();
-            return total;
+        private string getBwrapName() {
+            if (Children.size > 0) {
+                var c0 = Children[0];
+                if (c0.Name == "bwrap")
+                    return c0.getBwrapName();
+                else
+                    return c0.Name;
+            } else
+                return Name;
         }
 
         private long getCpuTime() {

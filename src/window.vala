@@ -33,7 +33,7 @@ namespace Leaftop {
             column_disk_factory.unbind.connect(column_unbind);
 
             listStore = new ListStore(typeof(Leaftop.Process));
-            var model = new Gtk.TreeListModel(listStore, false, true, createModelFunc);
+            var model = new Gtk.TreeListModel(listStore, false, false, createModelFunc);
             var tree_sorter = new Gtk.TreeListRowSorter(column_view.sorter);
             var sort_model = new Gtk.SortListModel(model, tree_sorter);
             var selection = new Gtk.SingleSelection(sort_model);
@@ -89,18 +89,27 @@ namespace Leaftop {
             cell.set_child(label);
         }
 
+        private List<weak Gtk.TreeListRow> rowsToExpand = new List<weak Gtk.TreeListRow>();
+        uint rowExpandJob = 0;
         private void column_name_bind(Object obj) {
             var cell = (Gtk.ColumnViewCell)obj;
             var expander = (Gtk.TreeExpander)cell.child;
-            Process proc;
-            if (cell.item is Gtk.TreeListRow) {
-                var row = (Gtk.TreeListRow)cell.item;
-                expander.set_list_row(row);
-                proc = (Process)row.item;
-                expander.hide_expander = proc.Children.size == 0;
-                //row.expanded = row.depth > 0;
-            } else proc = (Process)cell.item;
             ((ProcessNameCell)expander.child).Icon = proc.Icon;
+            var row = (Gtk.TreeListRow)cell.item;
+            expander.set_list_row(row);
+            Process proc = (Process)row.item;
+            expander.hide_expander = proc.Children.size == 0;
+            if (row.depth > 0)
+                rowsToExpand.append(row);
+            if (rowExpandJob == 0) {
+                rowExpandJob = Idle.add_once(() => {
+                    foreach (var r in rowsToExpand)
+                        if (r != null)    
+                            r.expanded = true;
+                    rowsToExpand = new List<weak Gtk.TreeListRow>();
+                    rowExpandJob = 0;
+                });
+            }
             var binding = proc.bind_property("Name", expander.child, "Name", BindingFlags.SYNC_CREATE);
             obj.set_data("binding", binding);
         }
