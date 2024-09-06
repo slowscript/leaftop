@@ -58,6 +58,9 @@ namespace Leaftop {
             var column_disk = new Gtk.ColumnViewColumn(_("Disk"), column_disk_factory);
             column_disk.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "DiskUse"));
             this.column_view.append_column(column_disk);
+            // Timeout is to prevent slowdown
+            //Timeout.add_once(50, () => this.column_view.sort_by_column((Gtk.ColumnViewColumn)column_view.columns.get_item(0), Gtk.SortType.ASCENDING));
+            Timeout.add_once(50, () => this.column_view.sort_by_column((Gtk.ColumnViewColumn)column_view.columns.get_item(3), Gtk.SortType.DESCENDING));
 
             this.watcher = new ProcessWatcher(listStore);
             this.watcher.mSorter = this.column_view.sorter;
@@ -94,7 +97,6 @@ namespace Leaftop {
         private void column_name_bind(Object obj) {
             var cell = (Gtk.ColumnViewCell)obj;
             var expander = (Gtk.TreeExpander)cell.child;
-            ((ProcessNameCell)expander.child).Icon = proc.Icon;
             var row = (Gtk.TreeListRow)cell.item;
             expander.set_list_row(row);
             Process proc = (Process)row.item;
@@ -110,6 +112,9 @@ namespace Leaftop {
                     rowExpandJob = 0;
                 });
             }
+            ProcessNameCell widget = (ProcessNameCell)expander.child;
+            widget.Icon = proc.Icon;
+            widget.tooltip_text = proc.CmdLine;//[:100];
             var binding = proc.bind_property("Name", expander.child, "Name", BindingFlags.SYNC_CREATE);
             obj.set_data("binding", binding);
         }
