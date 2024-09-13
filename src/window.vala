@@ -50,13 +50,13 @@ namespace Leaftop {
             column_name.expand = true;
             this.column_view.append_column(column_name);
             var column_cpu = new Gtk.ColumnViewColumn(_("CPU%"), column_cpu_factory);
-            column_cpu.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "CpuUtil"));
+            column_cpu.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "CpuTreeUtil"));
             this.column_view.append_column(column_cpu);
             var column_mem = new Gtk.ColumnViewColumn(_("Memory"), column_mem_factory);
             column_mem.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "MemTreeUsage"));
             this.column_view.append_column(column_mem);
             var column_disk = new Gtk.ColumnViewColumn(_("Disk"), column_disk_factory);
-            column_disk.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "DiskUse"));
+            column_disk.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "DiskTreeUtil"));
             this.column_view.append_column(column_disk);
             // Timeout is to prevent slowdown
             //Timeout.add_once(50, () => this.column_view.sort_by_column((Gtk.ColumnViewColumn)column_view.columns.get_item(0), Gtk.SortType.ASCENDING));
@@ -141,7 +141,7 @@ namespace Leaftop {
             bind_proc_property(obj, "CpuUtilStr");
         }
         private void column_disk_bind(Object obj) {
-            bind_proc_property(obj, "DiskUseStr");
+            bind_proc_property(obj, "DiskUtilStr");
         }
         private inline void bind_proc_property(Object obj, string prop) {
             var cell = (Gtk.ColumnViewCell)obj;

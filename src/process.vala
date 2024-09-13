@@ -13,9 +13,11 @@ namespace Leaftop {
         public int MemTreeUsage { get; private set; }
         public string MemString { get; private set; }
         public float CpuUtil { get; private set; }
+        public float CpuTreeUtil { get; private set; }
         public string CpuUtilStr { get; private set; }
-        public float DiskUse { get; private set; }
-        public string DiskUseStr { get; private set; }
+        public float DiskUtil { get; private set; }
+        public float DiskTreeUtil { get; private set; }
+        public string DiskUtilStr { get; private set; }
         public bool expanded = false;
 
         private string[] status;
@@ -59,31 +61,38 @@ namespace Leaftop {
             long cpuTime = getCpuTime();
             float utilTime = (cpuTime - prevCpuTime) / (float)ProcessWatcher.CLK_TCK;
             //TODO: get_num_processors reports only processors available to this process
-            CpuUtil = utilTime / (ProcessWatcher.UPDATE_INTERVAL / 1000.0f) * 100.0f;// / get_num_processors();
-            CpuUtilStr = "%.1f".printf(CpuUtil);
+            CpuUtil = utilTime / (ProcessWatcher.UPDATE_INTERVAL / 1000.0f) * 100.0f / get_num_processors();
             prevCpuTime = cpuTime;
             long disk = getDiskRWTotal();
             long diskDif = disk - prevDiskRW;
-            DiskUse = diskDif / (ProcessWatcher.UPDATE_INTERVAL / 1000.0f);
-            DiskUseStr = Utils.humanSize(DiskUse / 1000.0f) + "/s";
+            DiskUtil = diskDif / (ProcessWatcher.UPDATE_INTERVAL / 1000.0f);
             prevDiskRW = disk;
             return true;
         }
 
-        public void updateTreeMem() {
+        public void updateTreeUtil() {
             int treeMem = this.MemUsage;
+            float treeCpu = this.CpuUtil;
+            float treeDisk = this.DiskUtil;
             foreach (Process c in Children) {
-                c.updateTreeMem();
+                c.updateTreeUtil();
                 treeMem += c.MemTreeUsage;
+                treeCpu += c.CpuTreeUtil;
+                treeDisk += c.DiskTreeUtil;
             }
             this.MemTreeUsage = treeMem;
-            if (rssAnon != null) {
-                if (Parent == null && Children.size > 0)
-                    this.MemString = @"<small><b>$(Utils.humanSize(MemTreeUsage))</b>\n$(Utils.humanSize(MemUsage))</small>";
-                else
-                    this.MemString = Utils.humanSize(MemUsage);
+            this.CpuTreeUtil = treeCpu;
+            this.DiskTreeUtil = treeDisk;
+            if (Parent == null && Children.size > 0) {
+                this.MemString = rssAnon != null ? "<small>%s</small>\n<span size=\"x-small\">%s</span>"
+                    .printf(Utils.humanSize(MemTreeUsage), Utils.humanSize(MemUsage))
+                    : "N/A";
+                this.CpuUtilStr = "<small>%.1f</small>\n<span size=\"x-small\">%.1f</span>".printf(CpuTreeUtil, CpuUtil);
+                this.DiskUtilStr = @"<small>$(Utils.humanSize(DiskTreeUtil / 1000.0f))/s</small>\n<span size=\"x-small\">$(Utils.humanSize(DiskUtil / 1000.0f))/s</span>";
             } else {
-                this.MemString = "N/A";
+                this.MemString = rssAnon != null ? @"<small>$(Utils.humanSize(MemUsage))</small>" : "N/A";
+                this.CpuUtilStr = "%.1f".printf(CpuUtil);
+                this.DiskUtilStr = "<small>" + Utils.humanSize(DiskUtil / 1000.0f) + "/s</small>";
             }
         }
 

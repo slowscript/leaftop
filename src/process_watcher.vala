@@ -38,7 +38,7 @@ namespace Leaftop {
             }
             // Only after we have parent info can proc be added to store
             foreach (Process p in roots) {
-                p.updateTreeMem();
+                p.updateTreeUtil();
                 listStore.append(p);
             }
             Timeout.add(UPDATE_INTERVAL, update);
@@ -168,7 +168,7 @@ namespace Leaftop {
             }
             for (int i = 0; i < listStore.n_items; i++) {
                 Process p = (Process)listStore.get_item(i);
-                p.updateTreeMem();
+                p.updateTreeUtil();
             }
             if (mSorter != null)
                 mSorter.changed(Gtk.SorterChange.DIFFERENT); //Force re-sorting
