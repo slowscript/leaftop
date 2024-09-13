@@ -16,6 +16,7 @@ namespace Leaftop {
         public string CpuUtilStr { get; private set; }
         public float DiskUse { get; private set; }
         public string DiskUseStr { get; private set; }
+        public bool expanded = false;
 
         private string[] status;
         private string? rssAnon;

@@ -33,7 +33,7 @@ namespace Leaftop {
             column_disk_factory.unbind.connect(column_unbind);
 
             listStore = new ListStore(typeof(Leaftop.Process));
-            var model = new Gtk.TreeListModel(listStore, false, false, createModelFunc);
+            var model = new Gtk.TreeListModel(listStore, false, true, createModelFunc);
             var tree_sorter = new Gtk.TreeListRowSorter(column_view.sorter);
             var sort_model = new Gtk.SortListModel(model, tree_sorter);
             var selection = new Gtk.SingleSelection(sort_model);
@@ -93,7 +93,7 @@ namespace Leaftop {
         }
 
         private List<weak Gtk.TreeListRow> rowsToExpand = new List<weak Gtk.TreeListRow>();
-        uint rowExpandJob = 0;
+        private uint rowExpandJob = 0;
         private void column_name_bind(Object obj) {
             var cell = (Gtk.ColumnViewCell)obj;
             var expander = (Gtk.TreeExpander)cell.child;
@@ -101,13 +101,17 @@ namespace Leaftop {
             expander.set_list_row(row);
             Process proc = (Process)row.item;
             expander.hide_expander = proc.Children.size == 0;
-            if (row.depth > 0)
+            bool newRowToExpand = false;
+            if ((row.depth == 0) && !proc.expanded) {
+                proc.expanded = true;
                 rowsToExpand.append(row);
-            if (rowExpandJob == 0) {
+                newRowToExpand = true;
+            }
+            if ((rowExpandJob == 0) && newRowToExpand) {
                 rowExpandJob = Idle.add_once(() => {
                     foreach (var r in rowsToExpand)
-                        if (r != null)    
-                            r.expanded = true;
+                        if (r != null)
+                            r.expanded = false;
                     rowsToExpand = new List<weak Gtk.TreeListRow>();
                     rowExpandJob = 0;
                 });
