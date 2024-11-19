@@ -18,6 +18,9 @@ namespace Leaftop {
         public float DiskUtil { get; private set; }
         public float DiskTreeUtil { get; private set; }
         public string DiskUtilStr { get; private set; }
+        public string? CGroup;
+        public string? FlatpakID;
+        public string? ExePath;
         public bool expanded = false;
 
         private string[] status;
@@ -27,14 +30,33 @@ namespace Leaftop {
 
         public Process(int pid) {
             PID = pid;
-            CmdLine = readProcFile("cmdline");
-            if (CmdLine != null) {
+            CmdLine = readCmdLine(); //readProcFile("cmdline");
+            if (CmdLine != null && CmdLine != "") {
                 // FIXME: Arguments are behind \0, but they are not read correctly
-                var exePath = CmdLine/*.split("\0")[0]*/.split("/");
+                var args = CmdLine.split(" ");
+                var exePath = args[0]/*.split("\0")[0]*/.split("/");
                 if (exePath.length > 0) {
                     ExeName = exePath[exePath.length-1];
                 } else ExeName = "";
             } else ExeName = "";
+            try {
+                var exe = File.new_build_filename("/proc", PID.to_string(), "exe");
+                var exeinfo = exe.query_info(FileAttribute.OWNER_USER, GLib.FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
+                //Prevent error spam from GLib
+                if (exeinfo.get_attribute_string(FileAttribute.OWNER_USER) == Environment.get_user_name() && ExeName != "systemd") {
+                    exeinfo = exe.query_info(FileAttribute.STANDARD_SYMLINK_TARGET, GLib.FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
+                    ExePath = exeinfo.get_symlink_target();
+                }
+            } catch (Error e) {
+                print("Could not get exepath for %s: %s\n", ExeName, e.message);
+            }
+            CGroup = readProcFile("cgroup");
+            if (CGroup != null && CGroup != ""){
+                string[] parts = CGroup.split("/");
+                string last = parts[parts.length-1];
+                if (last.has_prefix("app-flatpak-") && last.has_suffix(".scope"))
+                    FlatpakID = last.split("-")[2];
+            }
             prevCpuTime = getCpuTime();
             prevDiskRW = getDiskRWTotal();
             update();
@@ -150,6 +172,24 @@ namespace Leaftop {
                 res = res.chomp();
             } catch (FileError err) {
                 //print("Could not read %s: %s\n", path, err.message);
+            }
+            return res;
+        }
+
+        private string? readCmdLine() {
+            string path = GLib.Path.build_filename("/proc", PID.to_string(), "cmdline");
+            string res = null;
+            try {
+                uint8[] data = null;
+                GLib.FileUtils.get_data(path, out data);
+                for (int i = 0; i < data.length; i++) {
+                    if (data[i] == 0)
+                        data[i] = ' '; //FIXME: Should return array of strings split at this point - arguments can contain spaces!
+                }
+                res = (string)data;
+                res = res.chomp();
+            } catch (FileError err) {
+                print("Could not read %s: %s\n", path, err.message);
             }
             return res;
         }

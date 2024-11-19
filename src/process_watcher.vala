@@ -16,8 +16,14 @@ namespace Leaftop {
             CLK_TCK = Posix.sysconf(Posix._SC_CLK_TCK);
             var apps = AppInfo.get_all();
             foreach (AppInfo app in apps) {
-                var exe = app.get_executable();
-                if (exe != "sh" && exe != "env")
+                string exe = app.get_executable();
+                string? id = app.get_id();
+                if (id != null) {
+                    if (id.has_suffix(".desktop"))
+                        id = id[0:id.length-8];
+                    installedApps.set(id, app);
+                }
+                if (exe != null && exe != "sh" && exe != "env")
                     installedApps.set(exe, app);
             }
         }
@@ -87,7 +93,7 @@ namespace Leaftop {
         }
 
         private Icon get_icon(Process p) {
-            AppInfo app = installedApps.get(p.CmdLine); //FIXME: CmdLine does not contain arguments at this point but it has the full exe path
+            AppInfo app = installedApps.get(p.FlatpakID);
             if (app != null) {
                 return app.get_icon();
             }
@@ -95,6 +101,10 @@ namespace Leaftop {
             if (app != null) {
                 return app.get_icon();
             }
+            app = installedApps.get(p.ExePath);
+            if (app != null) {
+                return app.get_icon();
+            } 
             return new ThemedIcon("application-x-executable");
         }
 
