@@ -17,7 +17,7 @@ namespace Leaftop {
             column_name_factory.bind.connect(column_name_bind);
             column_name_factory.unbind.connect(column_unbind);
             var column_pid_factory = new Gtk.SignalListItemFactory();
-            column_pid_factory.setup.connect(setup_label_column);
+            column_pid_factory.setup.connect(setup_inscription_column);
             column_pid_factory.bind.connect(column_pid_bind);
             var column_cpu_factory = new Gtk.SignalListItemFactory();
             column_cpu_factory.setup.connect(setup_label_column);
@@ -60,7 +60,10 @@ namespace Leaftop {
             this.column_view.append_column(column_disk);
             // Timeout is to prevent slowdown
             //Timeout.add_once(50, () => this.column_view.sort_by_column((Gtk.ColumnViewColumn)column_view.columns.get_item(0), Gtk.SortType.ASCENDING));
-            Timeout.add_once(50, () => this.column_view.sort_by_column((Gtk.ColumnViewColumn)column_view.columns.get_item(3), Gtk.SortType.DESCENDING));
+            this.show.connect(() => {
+                this.column_view.sort_by_column((Gtk.ColumnViewColumn)column_view.columns.get_item(3), Gtk.SortType.DESCENDING);
+                Timeout.add_once(200, () => this.column_view.scroll_to(0, null, Gtk.ListScrollFlags.NONE, null));
+            });
 
             this.watcher = new ProcessWatcher(listStore);
             this.watcher.mSorter = this.column_view.sorter;
@@ -89,6 +92,12 @@ namespace Leaftop {
             var cell = (Gtk.ColumnViewCell)obj;
             var label = new Gtk.Label("");
             label.use_markup = true;
+            cell.set_child(label);
+        }
+
+        private void setup_inscription_column(Object obj) {
+            var cell = (Gtk.ColumnViewCell)obj;
+            var label = new Gtk.Inscription("");
             cell.set_child(label);
         }
 
@@ -124,9 +133,9 @@ namespace Leaftop {
         }
         private void column_pid_bind(Object obj) {
             var cell = (Gtk.ColumnViewCell)obj;
-            var label = (Gtk.Label)cell.child;
+            var label = (Gtk.Inscription)cell.child;
             Process proc = (Process)((Gtk.TreeListRow)cell.item).item;
-            label.label = proc.PID.to_string();
+            label.text = proc.PID.to_string();
         }
         private void column_mem_bind(Object obj) {
             bind_proc_property(obj, "MemString");
