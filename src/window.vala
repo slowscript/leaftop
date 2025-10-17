@@ -3,6 +3,8 @@ namespace Leaftop {
     public class Window : Gtk.ApplicationWindow {
         [GtkChild]
         private unowned Gtk.ColumnView column_view;
+        [GtkChild]
+        private unowned Gtk.Stack stack;
 
         private ListStore listStore;
         private ProcessWatcher watcher;

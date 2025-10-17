@@ -7,6 +7,11 @@
     <property name="default-height">600</property>
     <property name="titlebar">
       <object class="GtkHeaderBar" id="header_bar">
+        <child type="title">
+          <object class="GtkStackSwitcher">
+            <property name="stack">stack</property>
+          </object>
+        </child>
         <child type="end">
           <object class="GtkMenuButton">
             <property name="primary">True</property>
@@ -18,13 +23,58 @@
       </object>
     </property>
     <property name="child">
-      <object class="GtkScrolledWindow" id="sw">
+      <object class="GtkStack" id="stack">
         <child>
-          <object class="GtkColumnView" id="column_view">
-            <!--<property name="label">Hello, World!</property>
-            <style>
-              <class name="title-1"/>
-            </style>-->
+          <object class="GtkStackPage">
+            <property name="name">page_processes</property>
+            <property name="title" translatable="yes">Processes</property>
+            <property name="child">
+              <object class="GtkScrolledWindow" id="sw">
+                <child>
+                  <object class="GtkColumnView" id="column_view">
+                    <!--<property name="label">Hello, World!</property>
+                    <style>
+                      <class name="title-1"/>
+                    </style>-->
+                  </object>
+                </child>
+              </object>
+            </property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkStackPage">
+            <property name="name">page_resources</property>
+            <property name="title" translatable="yes">Resources</property>
+            <property name="child">
+              <object class="GtkBox">
+                <property name="orientation">horizontal</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="label">Processor</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkStack" id="stackResources">
+                    <child>
+                      <object class="GtkStackPage">
+                        <property name="name">page_processor</property>
+                        <property name="child">
+                          <object class="GtkLabel">
+                            <property name="label">Hello</property>
+                          </object>
+                        </property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </property>
           </object>
         </child>
       </object>
