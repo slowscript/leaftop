@@ -23,15 +23,15 @@ namespace Leaftop {
             column_pid_factory.setup.connect(setup_inscription_column);
             column_pid_factory.bind.connect(column_pid_bind);
             var column_cpu_factory = new Gtk.SignalListItemFactory();
-            column_cpu_factory.setup.connect(setup_label_column);
+            column_cpu_factory.setup.connect(setup_inscription_column);
             column_cpu_factory.bind.connect(column_cpu_bind);
             column_cpu_factory.unbind.connect(column_unbind);
             var column_mem_factory = new Gtk.SignalListItemFactory();
-            column_mem_factory.setup.connect(setup_label_column);
+            column_mem_factory.setup.connect(setup_inscription_column);
             column_mem_factory.bind.connect(column_mem_bind);
             column_mem_factory.unbind.connect(column_unbind);
             var column_disk_factory = new Gtk.SignalListItemFactory();
-            column_disk_factory.setup.connect(setup_label_column);
+            column_disk_factory.setup.connect(setup_inscription_column);
             column_disk_factory.bind.connect(column_disk_bind);
             column_disk_factory.unbind.connect(column_unbind);
 
@@ -47,6 +47,7 @@ namespace Leaftop {
             
             var column_pid = new Gtk.ColumnViewColumn(_("PID"), column_pid_factory);
             column_pid.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "PID"));;
+            column_pid.fixed_width = 50;
             this.column_view.append_column(column_pid);
             var column_name = new Gtk.ColumnViewColumn(_("Process"), column_name_factory);
             column_name.sorter = new Gtk.StringSorter(new Gtk.PropertyExpression(typeof(Process), null, "Name"));
@@ -54,12 +55,15 @@ namespace Leaftop {
             this.column_view.append_column(column_name);
             var column_cpu = new Gtk.ColumnViewColumn(_("CPU%"), column_cpu_factory);
             column_cpu.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "CpuTreeUtil"));
+            column_cpu.fixed_width = 50;
             this.column_view.append_column(column_cpu);
             var column_mem = new Gtk.ColumnViewColumn(_("Memory"), column_mem_factory);
             column_mem.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "MemTreeUsage"));
+            column_mem.fixed_width = 70;
             this.column_view.append_column(column_mem);
             var column_disk = new Gtk.ColumnViewColumn(_("Disk"), column_disk_factory);
             column_disk.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "DiskTreeUtil"));
+            column_disk.fixed_width = 70;
             this.column_view.append_column(column_disk);
             // Timeout is to prevent slowdown
             //Timeout.add_once(50, () => this.column_view.sort_by_column((Gtk.ColumnViewColumn)column_view.columns.get_item(0), Gtk.SortType.ASCENDING));
@@ -110,16 +114,10 @@ namespace Leaftop {
             cell.set_child(expander);
         }
 
-        private void setup_label_column(Object obj) {
-            var cell = (Gtk.ColumnViewCell)obj;
-            var label = new Gtk.Label("");
-            label.use_markup = true;
-            cell.set_child(label);
-        }
-
         private void setup_inscription_column(Object obj) {
             var cell = (Gtk.ColumnViewCell)obj;
             var label = new Gtk.Inscription("");
+            label.height_request = 25;
             cell.set_child(label);
         }
 
@@ -176,10 +174,10 @@ namespace Leaftop {
         }
         private inline void bind_proc_property(Object obj, string prop) {
             var cell = (Gtk.ColumnViewCell)obj;
-            var label = (Gtk.Label)cell.child;
+            var label = (Gtk.Inscription)cell.child;
             Process proc = (Process)((Gtk.TreeListRow)cell.item).item;
             //FIXME: bindings are leaking memory (maybe)
-            var binding = proc.bind_property(prop, label, "label", GLib.BindingFlags.SYNC_CREATE);
+            var binding = proc.bind_property(prop, label, "markup", GLib.BindingFlags.SYNC_CREATE);
             obj.set_data("binding", binding);
         }
     }
