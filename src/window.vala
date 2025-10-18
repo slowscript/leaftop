@@ -8,6 +8,7 @@ namespace Leaftop {
 
         private ListStore listStore;
         private ProcessWatcher watcher;
+        private Gtk.SingleSelection listSelection;
 
         public Window (Gtk.Application app) {
             Object (application: app);
@@ -38,10 +39,10 @@ namespace Leaftop {
             var model = new Gtk.TreeListModel(listStore, false, true, createModelFunc);
             var tree_sorter = new Gtk.TreeListRowSorter(column_view.sorter);
             var sort_model = new Gtk.SortListModel(model, tree_sorter);
-            var selection = new Gtk.SingleSelection(sort_model);
-            selection.can_unselect = true;
-            selection.autoselect = false;
-            column_view.model = selection;
+            listSelection = new Gtk.SingleSelection(sort_model);
+            listSelection.can_unselect = true;
+            listSelection.autoselect = false;
+            column_view.model = listSelection;
             column_view.show_column_separators = true;
             
             var column_pid = new Gtk.ColumnViewColumn(_("PID"), column_pid_factory);
@@ -67,9 +68,28 @@ namespace Leaftop {
                 Timeout.add_once(200, () => this.column_view.scroll_to(0, null, Gtk.ListScrollFlags.NONE, null));
             });
 
+            ActionEntry[] action_entries = {
+                { "send-signal", this.on_send_signal, "s" },
+            };
+            this.add_action_entries(action_entries, this);
+
             this.watcher = new ProcessWatcher(listStore);
             this.watcher.mSorter = this.column_view.sorter;
             this.watcher.startWatching();
+        }
+
+        private void on_send_signal(SimpleAction a, Variant? param) {
+            string sig_name = param.get_string();
+            print("Send signal %s\n", sig_name);
+            if (listSelection.selected_item == null)
+                return;
+            var itm = (Gtk.TreeListRow)listSelection.selected_item;
+            Process p = (Process)itm.item;
+            if (p != null) {
+                int sig = Utils.signalNameToInt()[sig_name];
+                print("Send signal %d to %d:%s\n", sig, p.PID, p.Name);
+                Posix.kill(p.PID, sig);
+            }
         }
 
         private ListModel? createModelFunc(Object obj) {

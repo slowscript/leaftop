@@ -29,13 +29,55 @@
             <property name="name">page_processes</property>
             <property name="title" translatable="yes">Processes</property>
             <property name="child">
-              <object class="GtkScrolledWindow" id="sw">
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkColumnView" id="column_view">
-                    <!--<property name="label">Hello, World!</property>
-                    <style>
-                      <class name="title-1"/>
-                    </style>-->
+                  <object class="GtkScrolledWindow" id="sw">
+                    <property name="vexpand">true</property>
+                    <property name="valign">fill</property>
+                    <child>
+                      <object class="GtkColumnView" id="column_view">
+                        <!--<property name="label">Hello, World!</property>
+                        <style>
+                          <class name="title-1"/>
+                        </style>-->
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox"> <!-- Use ActionBar instead? supports revealing-->
+                    <property name="orientation">horizontal</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-bottom">4</property>
+                    <property name="spacing">4</property>
+                    <child>
+                      <object class="GtkMenuButton">
+                        <property name="icon-name">send_signal</property>
+                        <property name="label" translatable="yes">Signal</property>
+                        <property name="direction">GTK_ARROW_UP</property>
+                        <property name="menu-model">
+                          <menu>
+                            <item>
+                              <attribute name="label">SIGTERM</attribute>
+                              <attribute name="action">win.send-signal</attribute>
+                              <attribute name="target">sigterm</attribute>
+                            </item>
+                            <item>
+                              <attribute name="label">SIGKILL</attribute>
+                              <attribute name="action">win.send-signal</attribute>
+                              <attribute name="target">sigkill</attribute>
+                            </item>
+                            <item>
+                              <attribute name="label">SIGINT</attribute>
+                              <attribute name="action">win.send-signal</attribute>
+                              <attribute name="target">sigint</attribute>
+                            </item>
+                          </menu>
+                        </property>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
