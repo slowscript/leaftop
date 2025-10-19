@@ -7,6 +7,8 @@ namespace Leaftop {
         private unowned Gtk.Stack stack;
         [GtkChild]
         private unowned Gtk.Box page_processor;
+        [GtkChild]
+        private unowned Gtk.Box boxPageSwitcher;
 
         private ListStore listStore;
         private ProcessWatcher watcher;
@@ -86,6 +88,11 @@ namespace Leaftop {
             var chart = new ChartWidget();
             chart.height_request = 300;
             page_processor.append(chart);
+
+            var btnProcessor = new ChartButton();
+            btnProcessor.Title = _("Processor");
+            btnProcessor.Status = "10 % (45 C)";
+            boxPageSwitcher.append(btnProcessor);
         }
 
         private void on_send_signal(SimpleAction a, Variant? param) {
