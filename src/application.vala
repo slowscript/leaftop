@@ -18,6 +18,11 @@ namespace Leaftop {
             base.activate ();
             print("\nLeaftop v%s\n", BuildConfig.VERSION);
             print("num_processors: %u\n", get_num_processors());
+        
+            Gtk.CssProvider css_provider = new Gtk.CssProvider();
+            css_provider.load_from_resource("/xyz/slowscript/leaftop/style.css");
+            Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+
             var win = this.active_window;
             if (win == null) {
                 win = new Leaftop.Window (this);

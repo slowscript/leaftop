@@ -5,6 +5,8 @@ namespace Leaftop {
         private unowned Gtk.ColumnView column_view;
         [GtkChild]
         private unowned Gtk.Stack stack;
+        [GtkChild]
+        private unowned Gtk.Box page_processor;
 
         private ListStore listStore;
         private ProcessWatcher watcher;
@@ -80,6 +82,10 @@ namespace Leaftop {
             this.watcher = new ProcessWatcher(listStore);
             this.watcher.mSorter = this.column_view.sorter;
             this.watcher.startWatching();
+
+            var chart = new ChartWidget();
+            chart.height_request = 300;
+            page_processor.append(chart);
         }
 
         private void on_send_signal(SimpleAction a, Variant? param) {
