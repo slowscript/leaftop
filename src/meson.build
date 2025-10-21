@@ -8,7 +8,9 @@ leaftop_sources = [
   'process_name_cell.vala',
   'chart_widget.vala',
   'chart_button.vala',
+  'resource_watcher.vala',
   'utils.vala',
+  'resource_pages/processor_page.vala',
 ]
 
 leaftop_sources += gnome.compile_resources('leaftop-resources',

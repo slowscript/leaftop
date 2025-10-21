@@ -6,16 +6,21 @@ namespace Leaftop {
         [GtkChild]
         private unowned Gtk.Stack stack;
         [GtkChild]
-        private unowned Gtk.Box page_processor;
+        private unowned Gtk.Stack stackResources;
         [GtkChild]
         private unowned Gtk.Box boxPageSwitcher;
 
         private ListStore listStore;
         private ProcessWatcher watcher;
         private Gtk.SingleSelection listSelection;
+        private ResourceWatcher resource_watcher;
 
         public Window (Gtk.Application app) {
             Object (application: app);
+        }
+
+        static construct {
+            typeof(ProcessorPage).ensure();
         }
 
         construct {
@@ -85,14 +90,10 @@ namespace Leaftop {
             this.watcher.mSorter = this.column_view.sorter;
             this.watcher.startWatching();
 
-            var chart = new ChartWidget();
-            chart.height_request = 300;
-            page_processor.append(chart);
-
-            var btnProcessor = new ChartButton();
-            btnProcessor.Title = _("Processor");
-            btnProcessor.Status = "10 % (45 C)";
-            boxPageSwitcher.append(btnProcessor);
+            this.resource_watcher = new ResourceWatcher();
+            this.resource_watcher.init_stack_pages(stackResources);
+            this.resource_watcher.init_switcher_buttons(boxPageSwitcher);
+            this.resource_watcher.start_watching();
         }
 
         private void on_send_signal(SimpleAction a, Variant? param) {

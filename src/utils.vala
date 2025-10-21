@@ -1,14 +1,14 @@
 namespace Leaftop.Utils {
-    const string[] UNITS = {"kB", "MB"};
+    const string[] UNITS = {"kB", "MB", "GB"};
 
-    string humanSize(float sizekb) {
+    string humanSize(float sizekb, int decimals = 2, int max_unit = 1) {
         int unit = 0;
         float sz = sizekb;
-        while (sz >= 1024 && unit < UNITS.length-1) {
+        while (sz >= 1024 && unit < UNITS.length-1 && unit < max_unit) {
             sz /= 1024;
             unit++;
         }
-        return "%.2f %s".printf(sz, UNITS[unit]);
+        return ("%." + decimals.to_string() + "f %s").printf(sz, UNITS[unit]);
     }
 
     private static Gee.HashMap<string,int> _signalNameToInt = null;

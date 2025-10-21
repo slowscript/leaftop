@@ -2,6 +2,7 @@
 <gresources>
   <gresource prefix="/xyz/slowscript/leaftop">
     <file preprocess="xml-stripblanks">window.ui</file>
+    <file preprocess="xml-stripblanks">resource_pages/processor_page.ui</file>
     <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
     <file>style.css</file>
   </gresource>

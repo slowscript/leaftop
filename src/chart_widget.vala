@@ -13,6 +13,12 @@ namespace Leaftop {
             set_css_name ("LeaftopChartWidget");
         }
 
+        public void push_value(float val) {
+            DataPoints[DataStart++] = val;
+            DataStart %= DataPoints.length;
+            queue_draw();
+        }
+
         public override void snapshot(Gtk.Snapshot snapshot) {
             int w = get_width();
             int h = get_height();
