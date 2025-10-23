@@ -11,6 +11,7 @@ leaftop_sources = [
   'resource_watcher.vala',
   'utils.vala',
   'resource_pages/processor_page.vala',
+  'resource_pages/memory_page.vala',
 ]
 
 leaftop_sources += gnome.compile_resources('leaftop-resources',
