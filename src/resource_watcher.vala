@@ -115,47 +115,35 @@ namespace Leaftop {
 
         private void updateDisk() {
             var devs  = Utils.getBlockDevices();
-            foreach (var dev in devs) {
-                if (!diskStats.keys.contains(dev)) {
-                    print("Disk added: %s\n", dev);
-                    var ds = new DiskStats(dev);
-                    diskButtonBox.append(ds.btn);
-                    stack.add_child(ds.page);
-                    ds.btn.clicked.connect(() => stack.set_visible_child(ds.page));
-                    diskStats.set(dev, ds);
-                }
-            }
-            var toRemove = Utils.iteratorToArray<string>(diskStats.keys.filter((dev) => !(dev in devs)));
-            foreach (var disk in toRemove) {
-                print("Disk removed: %s\n", disk);
-                diskButtonBox.remove(diskStats.get(disk).btn);
-                stack.remove(diskStats.get(disk).page);
-                diskStats.unset(disk);
-            }
-            foreach (var disk in diskStats.keys)
-                diskStats.get(disk).update();
+            updateResource(devs, diskStats, diskButtonBox, (dev) => new DiskStats(dev));
         }
 
         private void updateNetwork() {
             var ifs = Utils.getNetworkInterfaces();
-            foreach (var iface in ifs) {
-                if (!netStats.keys.contains(iface)) {
-                    print("Iface added: %s\n", iface);
-                    var ns = new NetStats(iface);
-                    networkButtonBox.append(ns.btn);
-                    stack.add_child(ns.page);
-                    ns.btn.clicked.connect(() => stack.set_visible_child(ns.page));
-                    netStats.set(iface, ns);
+            updateResource(ifs, netStats, networkButtonBox, (dev) => new NetStats(dev));
+        }
+
+        delegate ResourceStats newResourceStats(string device);
+        private void updateResource(string[] devices, Gee.HashMap<string, ResourceStats> deviceMap, Gtk.Box buttonBox, newResourceStats nrs) {
+            foreach (var dev in devices) {
+                if (!deviceMap.keys.contains(dev)) {
+                    print("Resource added: %s\n", dev);
+                    var rs = nrs(dev);
+                    buttonBox.append(rs.btn);
+                    stack.add_child(rs.stackPage);
+                    rs.btn.clicked.connect(() => stack.set_visible_child(rs.stackPage));
+                    deviceMap.set(dev, rs);
                 }
             }
-            var toRemove = Utils.iteratorToArray<string>(netStats.keys.filter((iface) => !(iface in ifs)));
-            foreach (var iface in toRemove) {
-                print("Iface removed: %s\n", iface);
-                networkButtonBox.remove(netStats.get(iface).btn);
-                netStats.unset(iface);
+            var toRemove = Utils.iteratorToArray<string>(deviceMap.keys.filter((dev) => !(dev in devices)));
+            foreach (var disk in toRemove) {
+                print("Resource removed: %s\n", disk);
+                buttonBox.remove(deviceMap.get(disk).btn);
+                stack.remove(deviceMap.get(disk).stackPage);
+                deviceMap.unset(disk);
             }
-            foreach (var iface in netStats.keys)
-                netStats.get(iface).update();
+            foreach (var dev in deviceMap.keys)
+                deviceMap.get(dev).update();
         }
 
         private string? readProcFile(string file) {
@@ -171,14 +159,20 @@ namespace Leaftop {
         }
     }
 
-    class DiskStats {
+    abstract class ResourceStats {
+        public ChartButton btn;
+        public Gtk.Box stackPage;
+
+        public abstract void update();
+    }
+
+    class DiskStats : ResourceStats {
         public string Device;
         public string Model;
 
         public long io_ticks;
         long last_io_ticks = 0;
 
-        public ChartButton btn;
         public DiskPage page;
 
         public DiskStats(string device) {
@@ -197,9 +191,10 @@ namespace Leaftop {
             page.chart.DataPoints = new float[ResourceWatcher.ChartHistoryLength];
             page.chart.ChartColor = {0.96f, 0.74f, 0.18f, 1.0f};
             page.chart.ChartFill = {0.96f, 0.74f, 0.18f, 0.5f};
+            stackPage = page;
         }
 
-        public void update() {
+        public override void update() {
             string res;
             try {
                 GLib.FileUtils.get_contents("/sys/block/" + Device + "/stat", out res);
@@ -220,7 +215,7 @@ namespace Leaftop {
         }
     }
 
-    class NetStats {
+    class NetStats : ResourceStats {
         public string ifname;
         public string adapter = "";
         
@@ -229,7 +224,6 @@ namespace Leaftop {
         long tx_bytes;
         long last_tx_bytes;
 
-        public ChartButton btn;
         public NetworkPage page;
 
         public NetStats(string iface) {
@@ -253,9 +247,10 @@ namespace Leaftop {
             page.chart.ChartColor = {0.12f, 0.88f, 0.3f, 1.0f};
             page.chart.ChartFill = {0.12f, 0.88f, 0.3f, 0.5f};
             page.chart.AutoScale = true;
+            stackPage = page;
         }
 
-        public void update() {
+        public override void update() {
             string res;
             try {
                 GLib.FileUtils.get_contents("/sys/class/net/" + ifname + "/statistics/rx_bytes", out res);
