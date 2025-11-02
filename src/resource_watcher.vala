@@ -1,15 +1,14 @@
 namespace Leaftop {
     class ResourceWatcher {
         public const int ChartHistoryLength = 60; // 60 s
-        public const uint UPDATE_INTERVAL = 1000; //1 s
+        public const uint UPDATE_INTERVAL = 1000; // 1 s
 
         ChartButton btnProcessor;
         ChartButton btnMemory;
-        unowned ChartButton[] diskButtons;
-        unowned ChartButton[] networkButtons;
-        unowned ChartButton[] gpuButtons;
+        Gee.HashMap<string, DiskStats> diskStats = new Gee.HashMap<string, DiskStats>();
 
-        private Gtk.Stack stack;
+        private unowned Gtk.Stack stack;
+        private Gtk.Box diskButtonBox;
         private ProcessorPage pageProcessor;
         private MemoryPage pageMemory;
 
@@ -29,6 +28,9 @@ namespace Leaftop {
             btnMemory.chart.ChartColor = {0.91f, 0.31f, 0.91f, 1.0f};
             btnMemory.chart.ChartFill = {0.91f, 0.31f, 0.91f, 0.5f};
             container.append(btnMemory);
+
+            diskButtonBox = new Gtk.Box(Gtk.Orientation.VERTICAL, 4);
+            container.append(diskButtonBox);
         }
 
         public void init_stack_pages(Gtk.Stack _stack) {
@@ -36,14 +38,8 @@ namespace Leaftop {
 
             pageProcessor = new ProcessorPage();
             pageProcessor.chart.DataPoints = new float[ChartHistoryLength];
-            string res;
-            try {
-                GLib.FileUtils.get_contents("/proc/cpuinfo", out res);
-            } catch (FileError e) {
-                print("Could not read /proc/cpuinfo: %s\n", e.message);
-                return;
-            }
-            pageProcessor.lblProcessorName.label = res.split("\n")[4].split(":")[1].strip();
+            string cpuinfo = readProcFile("cpuinfo");
+            pageProcessor.lblProcessorName.label = cpuinfo.split("\n")[4].split(":")[1].strip();
             stack.add_child(pageProcessor);
 
             pageMemory = new MemoryPage();
@@ -64,6 +60,7 @@ namespace Leaftop {
         private bool update() {
             updateCPU();
             updateMemory();
+            updateDisk();
             return true;
         }
 
@@ -111,6 +108,29 @@ namespace Leaftop {
                 Utils.humanSize(totalmem, 1, 2), (int)(memusage*100.0));
         }
 
+        private void updateDisk() {
+            var devs  = Utils.getBlockDevices();
+            foreach (var dev in devs) {
+                if (!diskStats.keys.contains(dev)) {
+                    print("Disk added: %s\n", dev);
+                    var ds = new DiskStats(dev);
+                    diskButtonBox.append(ds.btn);
+                    stack.add_child(ds.page);
+                    ds.btn.clicked.connect(() => stack.set_visible_child(ds.page));
+                    diskStats.set(dev, ds);
+                }
+            }
+            var toRemove = Utils.iteratorToArray<string>(diskStats.keys.filter((dev) => !(dev in devs)));
+            foreach (var disk in toRemove) {
+                print("Disk removed: %s\n", disk);
+                diskButtonBox.remove(diskStats.get(disk).btn);
+                stack.remove(diskStats.get(disk).page);
+                diskStats.unset(disk);
+            }
+            foreach (var disk in diskStats.keys)
+                diskStats.get(disk).update();
+        }
+
         private string? readProcFile(string file) {
             string path = "/proc/" + file;
             string res;
@@ -121,6 +141,55 @@ namespace Leaftop {
                 return null;
             }
             return res;
+        }
+    }
+
+    class DiskStats {
+        public string Device;
+        public string Model;
+
+        public long io_ticks;
+        long last_io_ticks = 0;
+
+        public ChartButton btn;
+        public DiskPage page;
+
+        public DiskStats(string device) {
+            Device = device;
+            Model = (Utils.readFile("/sys/block/" + Device + "/device/model") ?? "").strip();
+
+            btn = new ChartButton();
+            btn.chart.DataPoints = new float[ResourceWatcher.ChartHistoryLength];
+            btn.chart.ChartColor = {0.96f, 0.74f, 0.18f, 1.0f};
+            btn.chart.ChartFill = {0.96f, 0.74f, 0.18f, 0.5f};
+            btn.Title = _("Disk (%s)").printf(Device);
+
+            page = new DiskPage();
+            page.lblDiskModel.label = Model;
+            page.lblTitle.label = btn.Title;
+            page.chart.DataPoints = new float[ResourceWatcher.ChartHistoryLength];
+            page.chart.ChartColor = {0.96f, 0.74f, 0.18f, 1.0f};
+            page.chart.ChartFill = {0.96f, 0.74f, 0.18f, 0.5f};
+        }
+
+        public void update() {
+            string res;
+            try {
+                GLib.FileUtils.get_contents("/sys/block/" + Device + "/stat", out res);
+                var stats = Utils.splitStr(res, " ");
+                io_ticks = long.parse(stats[9], 10); // In milliseconds
+                //print("%s: %ld\n", Device, io_ticks - last_io_ticks);
+            } catch (FileError e) {
+                print("Could not read disk stats: %s\n", e.message);
+            }
+            if (last_io_ticks == 0) last_io_ticks = io_ticks;
+            float active_pct = (float)(io_ticks - last_io_ticks) / ResourceWatcher.UPDATE_INTERVAL;
+            
+            btn.Status = "%s\n%.1f %%".printf(Model, active_pct*100.0f);
+            btn.chart.push_value(active_pct);
+            page.chart.push_value(active_pct);
+
+            last_io_ticks = io_ticks;
         }
     }
 }

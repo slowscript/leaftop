@@ -23,4 +23,47 @@ namespace Leaftop.Utils {
         }
         return _signalNameToInt;
     }
+
+    public string[] getBlockDevices() {
+        Gee.ArrayList<string> devs = new Gee.ArrayList<string>();
+        var dir = File.new_for_path("/sys/block");
+        try {
+            var children = dir.enumerate_children("standard::*", GLib.FileQueryInfoFlags.NONE);
+            FileInfo fi;
+            while ((fi = children.next_file()) != null) {
+                var name = fi.get_name();
+                string res;
+                GLib.FileUtils.get_contents("/sys/block/" + name + "/size", out res);
+                if (res.strip() == "0") continue;
+                devs.add(name);
+            }
+        } catch (Error e) {
+            printerr("Could not get block devices: %s", e.message);
+        }
+        return devs.to_array();
+    }
+
+    public string? readFile(string path) {
+        string res;
+        try {
+            GLib.FileUtils.get_contents(path, out res);
+        } catch (FileError e) {
+            print("Could not read %s: %s\n", path, e.message);
+            return null;
+        }
+        return res;
+    }
+
+    public string[] splitStr(string str, string delim) {
+        var split = str.split_set(delim);
+        Gee.ArrayList<string> al = new Gee.ArrayList<string>.wrap(split);
+        var f = al.filter((v) => v != "");
+        return iteratorToArray<string>(f);
+    }
+
+    public T[] iteratorToArray <T> (Gee.Iterator<T> it) {
+        Gee.ArrayList<T> res = new Gee.ArrayList<T>();
+        res.add_all_iterator(it);
+        return res.to_array();
+    }
 }
