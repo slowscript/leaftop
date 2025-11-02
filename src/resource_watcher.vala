@@ -6,9 +6,11 @@ namespace Leaftop {
         ChartButton btnProcessor;
         ChartButton btnMemory;
         Gee.HashMap<string, DiskStats> diskStats = new Gee.HashMap<string, DiskStats>();
+        Gee.HashMap<string, NetStats> netStats = new Gee.HashMap<string, NetStats>();
 
         private unowned Gtk.Stack stack;
         private Gtk.Box diskButtonBox;
+        private Gtk.Box networkButtonBox;
         private ProcessorPage pageProcessor;
         private MemoryPage pageMemory;
 
@@ -31,6 +33,8 @@ namespace Leaftop {
 
             diskButtonBox = new Gtk.Box(Gtk.Orientation.VERTICAL, 4);
             container.append(diskButtonBox);
+            networkButtonBox = new Gtk.Box(Gtk.Orientation.VERTICAL, 4);
+            container.append(networkButtonBox);
         }
 
         public void init_stack_pages(Gtk.Stack _stack) {
@@ -61,6 +65,7 @@ namespace Leaftop {
             updateCPU();
             updateMemory();
             updateDisk();
+            updateNetwork();
             return true;
         }
 
@@ -131,6 +136,28 @@ namespace Leaftop {
                 diskStats.get(disk).update();
         }
 
+        private void updateNetwork() {
+            var ifs = Utils.getNetworkInterfaces();
+            foreach (var iface in ifs) {
+                if (!netStats.keys.contains(iface)) {
+                    print("Iface added: %s\n", iface);
+                    var ns = new NetStats(iface);
+                    networkButtonBox.append(ns.btn);
+                    stack.add_child(ns.page);
+                    ns.btn.clicked.connect(() => stack.set_visible_child(ns.page));
+                    netStats.set(iface, ns);
+                }
+            }
+            var toRemove = Utils.iteratorToArray<string>(netStats.keys.filter((iface) => !(iface in ifs)));
+            foreach (var iface in toRemove) {
+                print("Iface removed: %s\n", iface);
+                networkButtonBox.remove(netStats.get(iface).btn);
+                netStats.unset(iface);
+            }
+            foreach (var iface in netStats.keys)
+                netStats.get(iface).update();
+        }
+
         private string? readProcFile(string file) {
             string path = "/proc/" + file;
             string res;
@@ -190,6 +217,67 @@ namespace Leaftop {
             page.chart.push_value(active_pct);
 
             last_io_ticks = io_ticks;
+        }
+    }
+
+    class NetStats {
+        public string ifname;
+        public string adapter = "";
+        
+        long rx_bytes;
+        long last_rx_bytes;
+        long tx_bytes;
+        long last_tx_bytes;
+
+        public ChartButton btn;
+        public NetworkPage page;
+
+        public NetStats(string iface) {
+            ifname = iface;
+            var c = new GUdev.Client(null);
+            var d = c.query_by_sysfs_path("/sys/class/net/" + ifname);
+            if (d != null)
+                adapter = d.get_property("ID_VENDOR_FROM_DATABASE") + " " + d.get_property("ID_MODEL_FROM_DATABASE");
+            
+            btn = new ChartButton();
+            btn.chart.DataPoints = new float[ResourceWatcher.ChartHistoryLength];
+            btn.chart.ChartColor = {0.12f, 0.88f, 0.3f, 1.0f};
+            btn.chart.ChartFill = {0.12f, 0.88f, 0.3f, 0.5f};
+            btn.Title = _("Network (%s)").printf(ifname);
+
+            page = new NetworkPage();
+            page.lblAdapter.label = adapter;
+            page.lblTitle.label = btn.Title;
+            page.chart.DataPoints = new float[ResourceWatcher.ChartHistoryLength];
+            page.chart.ChartColor = {0.12f, 0.88f, 0.3f, 1.0f};
+            page.chart.ChartFill = {0.12f, 0.88f, 0.3f, 0.5f};
+        }
+
+        public void update() {
+            string res;
+            try {
+                GLib.FileUtils.get_contents("/sys/class/net/" + ifname + "/statistics/rx_bytes", out res);
+                rx_bytes = long.parse(res, 10);
+                GLib.FileUtils.get_contents("/sys/class/net/" + ifname + "/statistics/tx_bytes", out res);
+                tx_bytes = long.parse(res, 10);
+            } catch (FileError e) {
+                print("Could not read net stats: %s\n", e.message);
+            }
+            if (last_rx_bytes == 0) {
+                last_rx_bytes = rx_bytes; last_tx_bytes = tx_bytes;
+            }
+            float tx_speed = (tx_bytes - last_tx_bytes) / (1000.0f / ResourceWatcher.UPDATE_INTERVAL);
+            float rx_speed = (rx_bytes - last_rx_bytes) / (1000.0f / ResourceWatcher.UPDATE_INTERVAL);
+
+            btn.Status = "↑ %s/s\n↓ %s/s".printf(Utils.humanSize(tx_speed/1024, 1, 2), 
+                Utils.humanSize(rx_speed/1024, 1, 2));
+            btn.chart.push_value(rx_speed); // TODO: Dual chart with tx_speed
+            btn.chart.MaxValue = 100*1024*1024/8; // 100Mbit
+            page.chart.push_value(rx_speed);
+            page.chart.MaxValue = 100*1024*1024/8;
+
+            last_rx_bytes = rx_bytes;
+            last_tx_bytes = tx_bytes;
         }
     }
 }
