@@ -8,6 +8,7 @@ namespace Leaftop {
         public uint DataStart = 0;
         public float MinValue = 0.0f;
         public float MaxValue = 1.0f;
+        public bool AutoScale = false;
 
         static construct {
             set_css_name ("LeaftopChartWidget");
@@ -16,6 +17,16 @@ namespace Leaftop {
         public void push_value(float val) {
             DataPoints[DataStart++] = val;
             DataStart %= DataPoints.length;
+
+            if (AutoScale) {
+                float max = 0.0f;
+                foreach (float v in DataPoints)
+                    if (v > max) max = v;
+
+                MaxValue += 0.6f * (max - MaxValue);
+                print("MAX: %.1f (%.1f)\n", max, MaxValue);
+            }
+
             queue_draw();
         }
 
@@ -33,7 +44,16 @@ namespace Leaftop {
             // Draw grid
             var ctx = snapshot.append_cairo(rect);
             ctx.set_line_width(1);
-            // TODO: grid
+            if (DrawGrid) {
+                ctx.set_source_rgba(0, 0, 0, 0.1);
+                for (int i = 1; i <= (DataPoints.length - 1)/5; i++) {
+                    double x = w - w * (double)(i*5) / (DataPoints.length - 1);
+                    ctx.move_to(x, 0);
+                    ctx.line_to(x, h);
+                }
+                // TODO: horizontal grid
+                ctx.stroke();
+            }
 
             // Draw plot
             ctx.set_source_rgba(ChartColor.red, ChartColor.green, ChartColor.blue, ChartColor.alpha);

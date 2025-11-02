@@ -1,6 +1,6 @@
 namespace Leaftop {
     class ResourceWatcher {
-        public const int ChartHistoryLength = 60; // 60 s
+        public const int ChartHistoryLength = 61; // 60 s
         public const uint UPDATE_INTERVAL = 1000; // 1 s
 
         ChartButton btnProcessor;
@@ -243,6 +243,7 @@ namespace Leaftop {
             btn.chart.DataPoints = new float[ResourceWatcher.ChartHistoryLength];
             btn.chart.ChartColor = {0.12f, 0.88f, 0.3f, 1.0f};
             btn.chart.ChartFill = {0.12f, 0.88f, 0.3f, 0.5f};
+            btn.chart.AutoScale = true;
             btn.Title = _("Network (%s)").printf(ifname);
 
             page = new NetworkPage();
@@ -251,6 +252,7 @@ namespace Leaftop {
             page.chart.DataPoints = new float[ResourceWatcher.ChartHistoryLength];
             page.chart.ChartColor = {0.12f, 0.88f, 0.3f, 1.0f};
             page.chart.ChartFill = {0.12f, 0.88f, 0.3f, 0.5f};
+            page.chart.AutoScale = true;
         }
 
         public void update() {
@@ -272,9 +274,7 @@ namespace Leaftop {
             btn.Status = "↑ %s/s\n↓ %s/s".printf(Utils.humanSize(tx_speed/1024, 1, 2), 
                 Utils.humanSize(rx_speed/1024, 1, 2));
             btn.chart.push_value(rx_speed); // TODO: Dual chart with tx_speed
-            btn.chart.MaxValue = 100*1024*1024/8; // 100Mbit
             page.chart.push_value(rx_speed);
-            page.chart.MaxValue = 100*1024*1024/8;
 
             last_rx_bytes = rx_bytes;
             last_tx_bytes = tx_bytes;

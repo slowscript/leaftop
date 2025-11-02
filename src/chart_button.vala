@@ -19,6 +19,7 @@ namespace Leaftop {
             
             chart = new ChartWidget();
             chart.width_request = 70;
+            chart.DrawGrid = false;
             hbox.append(chart);
             var vbox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
             vbox.width_request = 150;
@@ -33,10 +34,6 @@ namespace Leaftop {
             bind_property ("Status", lblStatus, "text", GLib.BindingFlags.SYNC_CREATE);
             vbox.append(lblTitle);
             vbox.append (lblStatus);
-            
-            clicked.connect (() => {
-                print("clicked\n");
-            });
         }
     }
 }
