@@ -4,8 +4,6 @@ namespace Leaftop {
         [GtkChild]
         private unowned Gtk.ColumnView column_view;
         [GtkChild]
-        private unowned Gtk.Stack stack;
-        [GtkChild]
         private unowned Gtk.Stack stackResources;
         [GtkChild]
         private unowned Gtk.Box boxPageSwitcher;

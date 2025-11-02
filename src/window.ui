@@ -57,25 +57,7 @@
                         <property name="icon-name">send_signal</property>
                         <property name="label" translatable="yes">Signal</property>
                         <property name="direction">GTK_ARROW_UP</property>
-                        <property name="menu-model">
-                          <menu>
-                            <item>
-                              <attribute name="label">SIGTERM</attribute>
-                              <attribute name="action">win.send-signal</attribute>
-                              <attribute name="target">sigterm</attribute>
-                            </item>
-                            <item>
-                              <attribute name="label">SIGKILL</attribute>
-                              <attribute name="action">win.send-signal</attribute>
-                              <attribute name="target">sigkill</attribute>
-                            </item>
-                            <item>
-                              <attribute name="label">SIGINT</attribute>
-                              <attribute name="action">win.send-signal</attribute>
-                              <attribute name="target">sigint</attribute>
-                            </item>
-                          </menu>
-                        </property>
+                        <property name="menu-model">signal_menu</property>
                       </object>
                     </child>
                   </object>
@@ -135,5 +117,22 @@
         <attribute name="action">app.about</attribute>
       </item>
     </section>
+  </menu>
+  <menu id="signal_menu">
+    <item>
+      <attribute name="label">SIGTERM</attribute>
+      <attribute name="action">win.send-signal</attribute>
+      <attribute name="target">sigterm</attribute>
+    </item>
+    <item>
+      <attribute name="label">SIGKILL</attribute>
+      <attribute name="action">win.send-signal</attribute>
+      <attribute name="target">sigkill</attribute>
+    </item>
+    <item>
+      <attribute name="label">SIGINT</attribute>
+      <attribute name="action">win.send-signal</attribute>
+      <attribute name="target">sigint</attribute>
+    </item>
   </menu>
 </interface>
