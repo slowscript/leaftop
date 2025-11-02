@@ -30,11 +30,10 @@ namespace Leaftop {
 
         public Process(int pid) {
             PID = pid;
-            CmdLine = readCmdLine(); //readProcFile("cmdline");
+            CmdLine = readCmdLine();
             if (CmdLine != null && CmdLine != "") {
-                // FIXME: Arguments are behind \0, but they are not read correctly
                 var args = CmdLine.split(" ");
-                var exePath = args[0]/*.split("\0")[0]*/.split("/");
+                var exePath = args[0].split("/");
                 if (exePath.length > 0) {
                     ExeName = exePath[exePath.length-1];
                 } else ExeName = "";
@@ -71,7 +70,7 @@ namespace Leaftop {
             if (ExeName.has_prefix(n))
                 n = ExeName;
             if (n == "bwrap" && Parent == null && Children.size > 0)
-                this.Name = n + " (" + Children.get(0)?.getBwrapName() + ")";
+                this.Name = n + " (" + getBwrapName() + ")";
             else
                 this.Name = n;
             this.ParentID = int.parse(getStatusValue("PPid"));
@@ -82,8 +81,7 @@ namespace Leaftop {
                 this.MemUsage = 0;
             long cpuTime = getCpuTime();
             float utilTime = (cpuTime - prevCpuTime) / (float)ProcessWatcher.CLK_TCK;
-            //TODO: get_num_processors reports only processors available to this process
-            CpuUtil = utilTime / (ProcessWatcher.UPDATE_INTERVAL / 1000.0f) * 100.0f / get_num_processors();
+            CpuUtil = utilTime / (ProcessWatcher.UPDATE_INTERVAL / 1000.0f) * 100.0f;
             prevCpuTime = cpuTime;
             long disk = getDiskRWTotal();
             long diskDif = disk - prevDiskRW;
@@ -120,13 +118,16 @@ namespace Leaftop {
 
         private string getBwrapName() {
             if (Children.size > 0) {
-                var c0 = Children[0];
+                // Pick lowest PID
+                var it = Children.order_by((a,b) => a.PID - b.PID);
+                it.next();
+                var c0 = it.get(); 
                 if (c0.Name == "bwrap")
                     return c0.getBwrapName();
                 else
                     return c0.Name;
             } else
-                return Name;
+                return "-";
         }
 
         private long getCpuTime() {
