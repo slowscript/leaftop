@@ -46,11 +46,12 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkBox"> <!-- Use ActionBar instead? supports revealing-->
+                  <object class="GtkBox">
                     <property name="orientation">horizontal</property>
                     <property name="margin-top">4</property>
                     <property name="margin-start">4</property>
                     <property name="margin-bottom">4</property>
+                    <property name="margin-end">4</property>
                     <property name="spacing">4</property>
                     <child>
                       <object class="GtkMenuButton">
@@ -58,6 +59,28 @@
                         <property name="label" translatable="yes">Signal</property>
                         <property name="direction">GTK_ARROW_UP</property>
                         <property name="menu-model">signal_menu</property>
+                      </object>
+                    </child>
+                    <child type="end">
+                      <object class="GtkLevelBar" id="barCPU">
+                        <property name="width-request">80</property>
+                        <property name="hexpand">true</property>
+                        <property name="halign">end</property>
+                        <child type="end">
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">CPU</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="end">
+                      <object class="GtkLevelBar" id="barMemory">
+                        <property name="width-request">80</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Memory</property>
+                          </object>
+                        </child>
                       </object>
                     </child>
                   </object>

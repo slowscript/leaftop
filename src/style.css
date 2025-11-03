@@ -4,6 +4,11 @@
 }
 
 LeaftopChartButton:hover {
-    background-color: rgba(0.5, 0.5, 0.5, 0.1);
+    background-color: rgba(128, 128, 128, 0.15);
     border-radius: 4px;
+}
+
+levelbar block.filled {
+    background-color: rgb(87, 148, 235);
+    border-color: rgb(87, 148, 235);
 }
