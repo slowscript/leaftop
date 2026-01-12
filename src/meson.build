@@ -26,7 +26,8 @@ leaftop_deps = [
   dependency('gio-2.0'),
   dependency('gee-0.8'),
   dependency('gudev-1.0'),
-  meson.get_compiler('vala').find_library('posix')
+  meson.get_compiler('vala').find_library('posix'),
+  meson.get_compiler('c').find_library('m')
 ]
 
 conf_data = configuration_data()

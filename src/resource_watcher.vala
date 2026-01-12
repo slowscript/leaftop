@@ -16,7 +16,8 @@ namespace Leaftop {
         public unowned Gtk.Label lblCPUTotal;
         public unowned Gtk.Label lblMemTotal;
 
-        private long prevCpuTime = 0;
+        private int numCpus = 1;
+        private CPUStats[] cpuStats;
 
         public void init_switcher_buttons(Gtk.Box container) {
             btnProcessor = new ChartButton();
@@ -41,11 +42,11 @@ namespace Leaftop {
 
         public void init_stack_pages(Gtk.Stack _stack) {
             stack = _stack;
+            numCpus = get_num_cpus();
+            cpuStats = new CPUStats[numCpus+1];
 
             pageProcessor = new ProcessorPage();
-            pageProcessor.chart.DataPoints = new float[ChartHistoryLength];
-            string cpuinfo = readProcFile("cpuinfo");
-            pageProcessor.lblProcessorName.label = cpuinfo.split("\n")[4].split(":")[1].strip();
+            pageProcessor.init(numCpus);
             stack.add_child(pageProcessor);
 
             pageMemory = new MemoryPage();
@@ -57,6 +58,21 @@ namespace Leaftop {
             uint totalmem = uint.parse(totalmemarr[totalmemarr.length-2]);
             pageMemory.lblMemSize.label = Utils.humanSize(totalmem, 1, 2);
             stack.add_child(pageMemory);
+        }
+
+        private int get_num_cpus() {
+            string? stat = readProcFile("stat");
+            if (stat == null)
+                return 1;
+            string[] lines = stat.split("\n");
+            int n = 0;
+            for (int i = 1; i < lines.length; i++) {
+                if (lines[i].has_prefix("cpu"))
+                    n++;
+                else break;
+            }
+            print("Num CPUs: %d\n", n);
+            return n;
         }
 
         public void start_watching() {
@@ -80,17 +96,15 @@ namespace Leaftop {
                 return;
             }
             string[] lines = res.split("\n");
-            long cpuUser = long.parse(lines[0].split(" ")[2]);
-            long cpuNice = long.parse(lines[0].split(" ")[3]);
-            long cpuSystem = long.parse(lines[0].split(" ")[4]);
-            long cpu = (cpuUser + cpuNice + cpuSystem);
-            if (prevCpuTime == 0) prevCpuTime = cpu;
-            float cpuUtil = (float)(cpu - prevCpuTime) / ProcessWatcher.CLK_TCK / get_num_processors(); // Assuming 1s update freq
-            prevCpuTime = cpu;
+            cpuStats[0].update(lines[0], numCpus);
+            for (int i = 1; i < numCpus+1; i++) {
+                cpuStats[i].update(lines[i], 1);
+                pageProcessor.cpuCharts[i-1].push_value(cpuStats[i].cpuUtil);
+            }
 
-            pageProcessor.chart.push_value(cpuUtil);
-            btnProcessor.chart.push_value(cpuUtil);
-            btnProcessor.Status = "%d %%".printf((int)(cpuUtil*100.0f));
+            pageProcessor.singleChart.push_value(cpuStats[0].cpuUtil);
+            btnProcessor.chart.push_value(cpuStats[0].cpuUtil);
+            btnProcessor.Status = "%d %%".printf((int)(cpuStats[0].cpuUtil*100.0f));
             lblCPUTotal.label = _("CPU: %.1f %%").printf(cpuStats[0].cpuUtil*100.0f);
         }
 
@@ -160,6 +174,27 @@ namespace Leaftop {
                 return null;
             }
             return res;
+        }
+    }
+
+    struct CPUStats {
+        long cpuUser;
+        long cpuNice;
+        long cpuSystem;
+        long cpuTotalTime;
+        long prevCpuTime;
+        float cpuUtil;
+
+        public void update(string line, int num_cpus) {
+            var split = Utils.splitStr(line, " ");
+            cpuUser = long.parse(split[1]);
+            cpuNice = long.parse(split[2]);
+            cpuSystem = long.parse(split[3]);
+            cpuTotalTime = cpuUser + cpuNice + cpuSystem;
+            if (prevCpuTime == 0)
+                prevCpuTime = cpuTotalTime;
+            cpuUtil = (float)(cpuTotalTime - prevCpuTime) / ProcessWatcher.CLK_TCK / num_cpus;
+            prevCpuTime = cpuTotalTime;
         }
     }
 
