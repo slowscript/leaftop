@@ -13,8 +13,8 @@ namespace Leaftop {
         private Gtk.Box networkButtonBox;
         private ProcessorPage pageProcessor;
         private MemoryPage pageMemory;
-        public unowned Gtk.LevelBar barCPU;
-        public unowned Gtk.LevelBar barMemory;
+        public unowned Gtk.Label lblCPUTotal;
+        public unowned Gtk.Label lblMemTotal;
 
         private long prevCpuTime = 0;
 
@@ -91,7 +91,7 @@ namespace Leaftop {
             pageProcessor.chart.push_value(cpuUtil);
             btnProcessor.chart.push_value(cpuUtil);
             btnProcessor.Status = "%d %%".printf((int)(cpuUtil*100.0f));
-            barCPU.value = cpuUtil;
+            lblCPUTotal.label = _("CPU: %.1f %%").printf(cpuStats[0].cpuUtil*100.0f);
         }
 
         private void updateMemory() {
@@ -114,7 +114,7 @@ namespace Leaftop {
             btnMemory.chart.push_value(memusage);
             btnMemory.Status = "%s / %s (%d %%)".printf(Utils.humanSize(totalmem - availmem, 1, 2), 
                 Utils.humanSize(totalmem, 1, 2), (int)(memusage*100.0));
-            barMemory.value = memusage;
+            lblMemTotal.label = _("Memory: %.1f %%").printf(memusage * 100.0f);
         }
 
         private void updateDisk() {

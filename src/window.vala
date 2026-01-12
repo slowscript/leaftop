@@ -8,9 +8,9 @@ namespace Leaftop {
         [GtkChild]
         private unowned Gtk.Box boxPageSwitcher;
         [GtkChild]
-        private unowned Gtk.LevelBar barCPU;
+        private unowned Gtk.Label lblCPUTotal;
         [GtkChild]
-        private unowned Gtk.LevelBar barMemory;
+        private unowned Gtk.Label lblMemTotal;
 
         private ListStore listStore;
         private ProcessWatcher watcher;
@@ -95,8 +95,8 @@ namespace Leaftop {
             this.resource_watcher = new ResourceWatcher();
             this.resource_watcher.init_stack_pages(stackResources);
             this.resource_watcher.init_switcher_buttons(boxPageSwitcher);
-            this.resource_watcher.barCPU = barCPU;
-            this.resource_watcher.barMemory = barMemory;
+            this.resource_watcher.lblCPUTotal = lblCPUTotal;
+            this.resource_watcher.lblMemTotal = lblMemTotal;
             this.resource_watcher.start_watching();
         }
 
