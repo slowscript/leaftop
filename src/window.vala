@@ -58,7 +58,7 @@ namespace Leaftop {
             
             var column_pid = new Gtk.ColumnViewColumn(_("PID"), column_pid_factory);
             column_pid.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "PID"));;
-            column_pid.fixed_width = 50;
+            column_pid.fixed_width = 55;
             this.column_view.append_column(column_pid);
             var column_name = new Gtk.ColumnViewColumn(_("Process"), column_name_factory);
             column_name.sorter = new Gtk.StringSorter(new Gtk.PropertyExpression(typeof(Process), null, "Name"));
@@ -70,11 +70,11 @@ namespace Leaftop {
             this.column_view.append_column(column_cpu);
             var column_mem = new Gtk.ColumnViewColumn(_("Memory"), column_mem_factory);
             column_mem.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "MemTreeUsage"));
-            column_mem.fixed_width = 70;
+            column_mem.fixed_width = 80;
             this.column_view.append_column(column_mem);
             var column_disk = new Gtk.ColumnViewColumn(_("Disk"), column_disk_factory);
             column_disk.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "DiskTreeUtil"));
-            column_disk.fixed_width = 70;
+            column_disk.fixed_width = 80;
             this.column_view.append_column(column_disk);
             // Timeout is to prevent slowdown
             //Timeout.add_once(50, () => this.column_view.sort_by_column((Gtk.ColumnViewColumn)column_view.columns.get_item(0), Gtk.SortType.ASCENDING));

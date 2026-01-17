@@ -216,7 +216,8 @@ namespace Leaftop {
 
         public DiskStats(string device) {
             Device = device;
-            Model = (Utils.readFile("/sys/block/" + Device + "/device/model") ?? "").strip();
+            Model = (Utils.readFile("/sys/block/" + Device + "/device/vendor") ?? "").strip() + " " +
+                    (Utils.readFile("/sys/block/" + Device + "/device/model") ?? "").strip();
 
             btn = new ChartButton();
             btn.chart.DataPoints = new float[ResourceWatcher.ChartHistoryLength];

@@ -40,8 +40,9 @@ configure_file(
 
 executable('leaftop', leaftop_sources,
   c_args: [
-    '-DGETTEXT_PACKAGE="leaftop"' 
+    '-DGETTEXT_PACKAGE="leaftop"', '-Wno-unused', '-Wno-discarded-qualifiers'
   ],
   dependencies: leaftop_deps,
        install: true,
+       vala_args: [], # -g
 )

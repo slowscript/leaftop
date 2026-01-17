@@ -37,7 +37,7 @@ namespace Leaftop {
                                    "logo-icon-name", "xyz.slowscript.leaftop",
                                    "authors", authors,
                                    "version", BuildConfig.VERSION,
-                                   "copyright", "© 2024 slowscript");
+                                   "copyright", "© 2026 slowscript");
         }
 
         private void on_preferences_action () {

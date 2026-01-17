@@ -24,7 +24,6 @@ namespace Leaftop {
                     if (v > max) max = v;
 
                 MaxValue += 0.6f * (max - MaxValue);
-                print("MAX: %.1f (%.1f)\n", max, MaxValue);
             }
 
             queue_draw();

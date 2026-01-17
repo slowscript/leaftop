@@ -52,16 +52,18 @@ namespace Leaftop.Utils {
             while ((fi = children.next_file()) != null) {
                 var name = fi.get_name();
                 if (name == "lo") continue;
-                string res;
-                GLib.FileUtils.get_contents("/sys/class/net/" + name + "/carrier", out res);
-                if (res.strip() == "0") continue;
-                /*long flags = long.parse(res);
-                if ((flags & 1) == 0) continue; // down
-                if ((flags & (1 << 3)) != 0) continue; //loopback*/
+                try {
+                    string res;
+                    GLib.FileUtils.get_contents("/sys/class/net/" + name + "/carrier", out res);
+                    if (res.strip() == "0") continue;
+                    /*long flags = long.parse(res);
+                    if ((flags & 1) == 0) continue; // down
+                    if ((flags & (1 << 3)) != 0) continue; //loopback*/
+                } catch {continue;} // No carrier
                 ifs.add(name);
             }
         } catch (Error e) {
-            printerr("Could not get network interfaces: %s", e.message);
+            printerr("Could not get network interfaces: %s\n", e.message);
         }
         return ifs.to_array();
     }
