@@ -1,0 +1,19 @@
+Source: leaftop
+Section: utils
+Priority: optional
+Maintainer: slowscript <slowscript@seznam.cz>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+Standards-Version: 4.7.2
+Homepage: https://slowscript.xyz/leaftop
+Vcs-Browser: https://github.com/slowscript/leaftop
+Vcs-Git: https://github.com/slowscript/leaftop.git
+
+Package: leaftop
+Architecture: any
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+Description: Graphical process manager and system monitor
+ A graphical Linux system monitor program with simple process tree grouping and additional system statistics. Made with plain GTK 4 (no libadwaita).

@@ -7,6 +7,7 @@
 	<metadata_license>CC0-1.0</metadata_license>
 	<project_license>GPL-3.0-or-later</project_license>
 	<description>
-	  <p>No description</p>
+	  <p>A graphical Linux system monitor program with simple process tree grouping and additional system statistics. Made with plain GTK 4 (no libadwaita).</p>
 	</description>
+	<url type="homepage">https://slowscript.xyz/leaftop</url>
 </component>

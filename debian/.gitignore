@@ -1,0 +1,6 @@
+/*.substvars
+/.debhelper/
+/leaftop
+/debhelper-build-stamp
+/files
+/tmp/
