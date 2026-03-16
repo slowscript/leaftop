@@ -139,7 +139,7 @@ namespace Leaftop {
             cell.set_child(label);
         }
 
-        private List<weak Gtk.TreeListRow> rowsToExpand = new List<weak Gtk.TreeListRow>();
+        private List<Gtk.TreeListRow> rowsToExpand = new List<Gtk.TreeListRow>();
         private uint rowExpandJob = 0;
         private void column_name_bind(Object obj) {
             var cell = (Gtk.ColumnViewCell)obj;
@@ -157,9 +157,8 @@ namespace Leaftop {
             if ((rowExpandJob == 0) && newRowToExpand) {
                 rowExpandJob = Idle.add_once(() => {
                     foreach (var r in rowsToExpand)
-                        if (r != null)
-                            r.expanded = false;
-                    rowsToExpand = new List<weak Gtk.TreeListRow>();
+                        r.expanded = false;
+                    rowsToExpand = new List<Gtk.TreeListRow>();
                     rowExpandJob = 0;
                 });
             }
