@@ -3,6 +3,10 @@
     font-weight: bold;
 }
 
+.bold {
+    font-weight: bold;
+}
+
 LeaftopChartButton:hover {
     background-color: rgba(128, 128, 128, 0.15);
     border-radius: 4px;

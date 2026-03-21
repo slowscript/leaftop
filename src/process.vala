@@ -18,6 +18,7 @@ namespace Leaftop {
         public float DiskUtil { get; private set; }
         public float DiskTreeUtil { get; private set; }
         public string DiskUtilStr { get; private set; }
+        public int NumThreads;
         public string? CGroup;
         public string? FlatpakID;
         public string? ExePath;
@@ -79,6 +80,7 @@ namespace Leaftop {
                 this.MemUsage = int.parse(rssAnon.split(" ")[0]);
             else
                 this.MemUsage = 0;
+            this.NumThreads = int.parse(getStatusValue("Threads"));
             long cpuTime = getCpuTime();
             float utilTime = (cpuTime - prevCpuTime) / (float)ProcessWatcher.CLK_TCK;
             CpuUtil = utilTime / (ProcessWatcher.UPDATE_INTERVAL / 1000.0f) * 100.0f;

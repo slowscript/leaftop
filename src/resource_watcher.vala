@@ -106,8 +106,30 @@ namespace Leaftop {
 
             pageProcessor.singleChart.push_value(cpuStats[0].cpuUtil);
             btnProcessor.chart.push_value(cpuStats[0].cpuUtil);
-            btnProcessor.Status = "%d %%".printf((int)(cpuStats[0].cpuUtil*100.0f));
+            btnProcessor.Status = "%.0f %%".printf(cpuStats[0].cpuUtil*100.0f);
             lblCPUTotal.label = _("CPU: %.1f %%").printf(cpuStats[0].cpuUtil*100.0f);
+
+            if (stack.visible_child == pageProcessor) {
+                pageProcessor.lblUsage.label = "%.0f %%".printf(cpuStats[0].cpuUtil*100.0f);
+                string[] cpuinfo = Utils.readFile("/proc/cpuinfo").split("\n");
+                float speed = 0.0f;
+                foreach (string line in cpuinfo){
+                    if (line.has_prefix("cpu MHz")) {
+                        float s = float.parse(line.split(":")[1].strip());
+                        if (s > speed) speed = s;
+                    }
+                }
+                pageProcessor.lblFrequency.label = "%.2f GHz".printf(speed / 1000.0f);
+                pageProcessor.lblProcesses.label = ProcessWatcher.numProcesses.to_string("%d");
+                pageProcessor.lblThreads.label = ProcessWatcher.numThreads.to_string("%d");
+                pageProcessor.lblDescriptors.label = Utils.readFile("/proc/sys/fs/file-nr").split("\t", 2)[0];
+                int uptime = (int)float.parse( Utils.readFile("/proc/uptime").split(" ", 2)[0]);
+                int up_days = uptime / 86400;
+                int up_hours = (uptime % 86400) / 3600;
+                int up_minutes = (uptime % 3600) / 60;
+                int up_seconds = uptime % 60;
+                pageProcessor.lblUptime.label = "%1d:%02d:%02d:%02d".printf(up_days, up_hours, up_minutes, up_seconds);
+            }
         }
 
         private void updateMemory() {

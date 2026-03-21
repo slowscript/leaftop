@@ -10,6 +10,7 @@ leaftop_sources = [
   'chart_button.vala',
   'resource_watcher.vala',
   'utils.vala',
+  'resource_pages/details_grid.vala',
   'resource_pages/processor_page.vala',
   'resource_pages/memory_page.vala',
   'resource_pages/disk_page.vala',

@@ -9,6 +9,9 @@ namespace Leaftop {
         private Gee.HashMap<int, Process> processes;
         private Gee.HashMap<string, AppInfo> installedApps = new Gee.HashMap<string, AppInfo>();
 
+        public static int numProcesses = 0;
+        public static int numThreads = 0;
+
         internal weak Gtk.Sorter mSorter;
 
         public ProcessWatcher(ListStore store) {
@@ -176,10 +179,17 @@ namespace Leaftop {
             } catch (Error e) {
                 printerr("Could not update process list: %s", e.message);
             }
+            // Update tree from roots
             for (int i = 0; i < listStore.n_items; i++) {
                 Process p = (Process)listStore.get_item(i);
                 p.updateTreeUtil();
             }
+            // Full tree pass
+            int threads = 0;
+            foreach (Process p in processes.values)
+                threads += p.NumThreads;
+            numProcesses = processes.size;
+            numThreads = threads;
             if (mSorter != null)
                 mSorter.changed(Gtk.SorterChange.DIFFERENT); //Force re-sorting
             return true;

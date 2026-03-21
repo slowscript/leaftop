@@ -11,6 +11,34 @@ namespace Leaftop.Utils {
         return ("%." + decimals.to_string() + "f %s").printf(sz, UNITS[unit]);
     }
 
+    int parse_suffix(string s, bool si = false) {
+        int suffix_start = -1;
+        int mult = si ? 1000 : 1024;
+        for (int i = 0; i < s.length; i++) {
+            if (!s[i].isdigit()) {
+                suffix_start = i;
+                break;
+            }    
+        }
+        if (suffix_start == -1) //All digits
+            return int.parse(s);
+        else if (suffix_start == 0) //No digits
+            return 0;
+        else {
+            int num = int.parse(s[0:suffix_start]);
+            switch (s[suffix_start].tolower()) {
+                case 'k':
+                    return num * mult;
+                case 'm':
+                    return num * mult * mult;
+                case 'g':
+                    return num * mult * mult * mult;
+                default:
+                    return num;
+            }
+        }
+    }
+
     private static Gee.HashMap<string,int> _signalNameToInt = null;
 
     public Gee.HashMap<string,int> signalNameToInt() {
@@ -90,5 +118,16 @@ namespace Leaftop.Utils {
         Gee.ArrayList<T> res = new Gee.ArrayList<T>();
         res.add_all_iterator(it);
         return res.to_array();
+    }
+
+    public Gee.ArrayList<FileInfo> enumerate_dir(string path) throws Error {
+        var dir = File.new_for_path(path);
+        var res = new Gee.ArrayList<FileInfo>();
+        var children = dir.enumerate_children("standard::*", FileQueryInfoFlags.NONE);
+        FileInfo info;
+        while ((info = children.next_file()) != null) {
+            res.add(info);
+        }
+        return res;
     }
 }
