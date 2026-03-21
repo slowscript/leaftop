@@ -11,6 +11,10 @@ namespace Leaftop {
         private unowned Gtk.Label lblCPUTotal;
         [GtkChild]
         private unowned Gtk.Label lblMemTotal;
+        [GtkChild]
+        private unowned Gtk.Label lblDiskTotal;
+        [GtkChild]
+        private unowned Gtk.Label lblNetTotal;
 
         private ListStore listStore;
         private ProcessWatcher watcher;
@@ -97,6 +101,8 @@ namespace Leaftop {
             this.resource_watcher.init_switcher_buttons(boxPageSwitcher);
             this.resource_watcher.lblCPUTotal = lblCPUTotal;
             this.resource_watcher.lblMemTotal = lblMemTotal;
+            this.resource_watcher.lblDiskTotal = lblDiskTotal;
+            this.resource_watcher.lblNetTotal = lblNetTotal;
             this.resource_watcher.start_watching();
         }
 

@@ -15,6 +15,8 @@ namespace Leaftop {
         private MemoryPage pageMemory;
         public unowned Gtk.Label lblCPUTotal;
         public unowned Gtk.Label lblMemTotal;
+        public unowned Gtk.Label lblDiskTotal;
+        public unowned Gtk.Label lblNetTotal;
 
         private int numCpus = 1;
         private CPUStats[] cpuStats;
@@ -134,11 +136,22 @@ namespace Leaftop {
         private void updateDisk() {
             var devs  = Utils.getBlockDevices();
             updateResource(devs, diskStats, diskButtonBox, (dev) => new DiskStats(dev));
+            float maxUsage = 0.0f;
+            foreach (var d in diskStats.values) {
+                if (d.active_pct > maxUsage)
+                    maxUsage = d.active_pct;
+            }
+            lblDiskTotal.label = _("Disk: %.1f %%").printf(maxUsage * 100.0f);
         }
 
         private void updateNetwork() {
             var ifs = Utils.getNetworkInterfaces();
             updateResource(ifs, netStats, networkButtonBox, (dev) => new NetStats(dev));
+            float totalSpeed = 0.0f;
+            foreach (var n in netStats.values) {
+                totalSpeed += n.rx_speed + n.tx_speed;
+            }
+            lblNetTotal.label = _("Network: %s/s").printf(Utils.humanSize(totalSpeed/1024, 1, 2));
         }
 
         delegate ResourceStats newResourceStats(string device);
@@ -211,6 +224,7 @@ namespace Leaftop {
 
         public long io_ticks;
         long last_io_ticks = 0;
+        public float active_pct;
 
         public DiskPage page;
 
@@ -245,7 +259,7 @@ namespace Leaftop {
                 print("Could not read disk stats: %s\n", e.message);
             }
             if (last_io_ticks == 0) last_io_ticks = io_ticks;
-            float active_pct = (float)(io_ticks - last_io_ticks) / ResourceWatcher.UPDATE_INTERVAL;
+            active_pct = (float)(io_ticks - last_io_ticks) / ResourceWatcher.UPDATE_INTERVAL;
             
             btn.Status = "%s\n%.1f %%".printf(Model, active_pct*100.0f);
             btn.chart.push_value(active_pct);
@@ -263,6 +277,9 @@ namespace Leaftop {
         long last_rx_bytes;
         long tx_bytes;
         long last_tx_bytes;
+
+        public float rx_speed;
+        public float tx_speed;
 
         public NetworkPage page;
 
@@ -303,8 +320,8 @@ namespace Leaftop {
             if (last_rx_bytes == 0) {
                 last_rx_bytes = rx_bytes; last_tx_bytes = tx_bytes;
             }
-            float tx_speed = (tx_bytes - last_tx_bytes) / (1000.0f / ResourceWatcher.UPDATE_INTERVAL);
-            float rx_speed = (rx_bytes - last_rx_bytes) / (1000.0f / ResourceWatcher.UPDATE_INTERVAL);
+            tx_speed = (tx_bytes - last_tx_bytes) / (1000.0f / ResourceWatcher.UPDATE_INTERVAL);
+            rx_speed = (rx_bytes - last_rx_bytes) / (1000.0f / ResourceWatcher.UPDATE_INTERVAL);
 
             btn.Status = "↑ %s/s\n↓ %s/s".printf(Utils.humanSize(tx_speed/1024, 1, 2), 
                 Utils.humanSize(rx_speed/1024, 1, 2));
