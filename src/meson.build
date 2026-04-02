@@ -8,6 +8,7 @@ leaftop_sources = [
   'process_name_cell.vala',
   'chart_widget.vala',
   'chart_button.vala',
+  'split_bar_widget.vala',
   'resource_watcher.vala',
   'utils.vala',
   'resource_pages/details_grid.vala',

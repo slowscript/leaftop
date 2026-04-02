@@ -27,6 +27,7 @@ namespace Leaftop {
 
         static construct {
             typeof(ProcessorPage).ensure();
+            typeof(SplitBarWidget).ensure();
         }
 
         construct {

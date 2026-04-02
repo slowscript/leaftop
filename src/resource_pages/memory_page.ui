@@ -3,6 +3,10 @@
   <requires lib="gtk" version="4.0"/>
   <template class="LeaftopMemoryPage" parent="GtkBox">
     <property name="orientation">vertical</property>
+    <property name="margin-start">10</property>
+    <property name="margin-end">10</property>
+    <property name="margin-top">10</property>
+    <property name="margin-bottom">10</property>
     <child>
       <object class="GtkBox">
         <property name="orientation">horizontal</property>
@@ -26,6 +30,45 @@
     <child>
       <object class="LeaftopChartWidget" id="chart">
         <property name="height_request">300</property>  
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">horizontal</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">Swap</property>
+            <property name="halign">GTK_ALIGN_START</property>
+            <property name="hexpand">true</property>
+            <property name="margin_top">4</property>
+            <style><class name="bold"/></style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="lblSwapTotal">
+            <property name="label">None</property>
+            <property name="halign">GTK_ALIGN_END</property>
+            <style><class name="bold"/></style>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="LeaftopChartWidget" id="chartSwap">
+        <property name="height_request">200</property>  
+      </object>
+    </child>
+    <child>
+      <object class="GtkLabel">
+        <property name="label" translatable="yes">Memory usage breakdown</property>
+        <property name="halign">GTK_ALIGN_START</property>
+        <property name="margin_top">4</property>
+        <style><class name="bold"/></style>
+      </object>
+    </child>
+    <child>
+      <object class="LeaftopSplitBarWidget" id="memoryBar">
+        <property name="height_request">30</property>  
       </object>
     </child>
   </template>

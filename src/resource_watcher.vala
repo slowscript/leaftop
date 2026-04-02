@@ -13,6 +13,7 @@ namespace Leaftop {
         private Gtk.Box networkButtonBox;
         private ProcessorPage pageProcessor;
         private MemoryPage pageMemory;
+        private Gtk.ScrolledWindow pageMemoryScrolled;
         public unowned Gtk.Label lblCPUTotal;
         public unowned Gtk.Label lblMemTotal;
         public unowned Gtk.Label lblDiskTotal;
@@ -30,7 +31,7 @@ namespace Leaftop {
 
             btnMemory = new ChartButton();
             btnMemory.Title = _("Memory");
-            btnMemory.clicked.connect(() => stack.set_visible_child(pageMemory));
+            btnMemory.clicked.connect(() => stack.set_visible_child(pageMemoryScrolled));
             btnMemory.chart.DataPoints = new float[ChartHistoryLength];
             btnMemory.chart.ChartColor = {0.91f, 0.31f, 0.91f, 1.0f};
             btnMemory.chart.ChartFill = {0.91f, 0.31f, 0.91f, 0.5f};
@@ -51,15 +52,17 @@ namespace Leaftop {
             pageProcessor.init(numCpus);
             stack.add_child(pageProcessor);
 
+            pageMemoryScrolled = new Gtk.ScrolledWindow();
             pageMemory = new MemoryPage();
             pageMemory.chart.DataPoints = new float[ChartHistoryLength];
-            pageMemory.chart.ChartColor = {0.91f, 0.31f, 0.91f, 1.0f};
-            pageMemory.chart.ChartFill = {0.91f, 0.31f, 0.91f, 0.5f};
+            pageMemory.chartSwap.DataPoints = new float[ChartHistoryLength];
+            pageMemory.init();
             string meminfo = readProcFile("meminfo");
             string[] totalmemarr = meminfo.split("\n")[0].split(" ");
             uint totalmem = uint.parse(totalmemarr[totalmemarr.length-2]);
             pageMemory.lblMemSize.label = Utils.humanSize(totalmem, 1, 2);
-            stack.add_child(pageMemory);
+            pageMemoryScrolled.set_child(pageMemory);
+            stack.add_child(pageMemoryScrolled);
         }
 
         private int get_num_cpus() {
@@ -141,18 +144,37 @@ namespace Leaftop {
                 return;
             }
             string[] lines = res.split("\n");
-            string[] totalmemarr = lines[0].split(" ");
-            uint totalmem = uint.parse(totalmemarr[totalmemarr.length-2]);
-
-            string[] availmemarr = lines[2].split(" ");
-            uint availmem = uint.parse(availmemarr[availmemarr.length-2]);
+            uint totalmem = uint.parse(Utils.splitStr(lines[0], " ")[1]);
+            uint availmem = uint.parse(Utils.splitStr(lines[2], " ")[1]);
             float memusage = 1.0f - ((float)availmem / totalmem);
 
+            uint totalswapkb = uint.parse(Utils.splitStr(lines[14], " ")[1]);
+            uint availswapkb = uint.parse(Utils.splitStr(lines[15], " ")[1]);
+            float swapusage = totalswapkb == 0 ? 0.0f : 1.0f - ((float)availswapkb / totalswapkb);
+
+            uint bufferkb =  uint.parse(Utils.splitStr(lines[3], " ")[1]);
+            uint cachekb =  uint.parse(Utils.splitStr(lines[4], " ")[1]);
+            float freepct = (float)uint.parse(Utils.splitStr(lines[1], " ")[1]) / totalmem;
+            float bufferpct = (float)bufferkb / totalmem;
+            float cachepct = (float)cachekb / totalmem;
+            float usedpct = 1.0f - freepct - bufferpct - cachepct;
+
             pageMemory.chart.push_value(memusage);
+            pageMemory.chartSwap.push_value(swapusage);
             btnMemory.chart.push_value(memusage);
             btnMemory.Status = "%s / %s (%d %%)".printf(Utils.humanSize(totalmem - availmem, 1, 2), 
                 Utils.humanSize(totalmem, 1, 2), (int)(memusage*100.0));
             lblMemTotal.label = _("Memory: %.1f %%").printf(memusage * 100.0f);
+            pageMemory.lblSwapTotal.label = Utils.humanSize(totalswapkb, 1, 2);
+            pageMemory.chartSwap.visible = totalswapkb != 0;
+            pageMemory.memoryBar.Values[0] = usedpct;
+            pageMemory.memoryBar.Values[1] = bufferpct;
+            pageMemory.memoryBar.Values[2] = cachepct;
+            pageMemory.lblUsed.label = Utils.humanSize(totalmem - availmem, 2, 2);
+            pageMemory.lblBuffer.label = Utils.humanSize(bufferkb, 2, 2);
+            pageMemory.lblCache.label = Utils.humanSize(cachekb, 2, 2);
+            pageMemory.lblAvailable.label = Utils.humanSize(availmem, 2, 2);
+            pageMemory.lblUsedSwap.label = Utils.humanSize(totalswapkb - availswapkb, 2, 2);
         }
 
         private void updateDisk() {

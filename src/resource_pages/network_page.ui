@@ -3,6 +3,10 @@
   <requires lib="gtk" version="4.0"/>
   <template class="LeaftopNetworkPage" parent="GtkBox">
     <property name="orientation">vertical</property>
+    <property name="margin-start">10</property>
+    <property name="margin-end">10</property>
+    <property name="margin-top">10</property>
+    <property name="margin-bottom">10</property>
     <child>
       <object class="GtkBox">
         <property name="orientation">horizontal</property>
