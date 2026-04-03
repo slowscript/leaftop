@@ -257,18 +257,31 @@ namespace Leaftop {
 
     abstract class ResourceStats {
         public ChartButton btn;
-        public Gtk.Box stackPage;
+        public Gtk.Widget stackPage;
 
         public abstract void update();
     }
 
     class DiskStats : ResourceStats {
+        public const int SECTOR_SIZE = 512; // UNIX sector, not specific to HW (size in bytes)
+        
         public string Device;
         public string Model;
 
         public long io_ticks;
         long last_io_ticks = 0;
         public float active_pct;
+        public long read_sectors;
+        public long write_sectors;
+        long last_read_sectors = 0;
+        long last_write_sectors = 0;
+        public float read_speed;
+        public float write_speed;
+        public long sum_ticks;
+        public long sum_ios;
+        long last_sum_ticks = 0;
+        long last_sum_ios = 0;
+        public float response_time;
 
         public DiskPage page;
 
@@ -287,9 +300,12 @@ namespace Leaftop {
             page.lblDiskModel.label = Model;
             page.lblTitle.label = btn.Title;
             page.chart.DataPoints = new float[ResourceWatcher.ChartHistoryLength];
-            page.chart.ChartColor = {0.96f, 0.74f, 0.18f, 1.0f};
-            page.chart.ChartFill = {0.96f, 0.74f, 0.18f, 0.5f};
-            stackPage = page;
+            page.chartSpeed.DataPoints = new float[ResourceWatcher.ChartHistoryLength];
+            page.chartSpeed.DataPoints2 = new float[ResourceWatcher.ChartHistoryLength];
+            page.init(Device);
+            var scrolled = new Gtk.ScrolledWindow();
+            scrolled.set_child(page);
+            stackPage = scrolled;
         }
 
         public override void update() {
@@ -298,18 +314,45 @@ namespace Leaftop {
                 GLib.FileUtils.get_contents("/sys/block/" + Device + "/stat", out res);
                 var stats = Utils.splitStr(res, " ");
                 io_ticks = long.parse(stats[9], 10); // In milliseconds
-                //print("%s: %ld\n", Device, io_ticks - last_io_ticks);
+                read_sectors = long.parse(stats[2]);
+                write_sectors = long.parse(stats[6]);
+                sum_ios = long.parse(stats[0]) + long.parse(stats[4]) + long.parse(stats[11]) + long.parse(stats[15]);
+                sum_ticks = long.parse(stats[3]) + long.parse(stats[7]) + long.parse(stats[14]) + long.parse(stats[16]);
             } catch (FileError e) {
                 print("Could not read disk stats: %s\n", e.message);
             }
             if (last_io_ticks == 0) last_io_ticks = io_ticks;
+            if (last_read_sectors == 0) last_read_sectors = read_sectors;
+            if (last_write_sectors == 0) last_write_sectors = write_sectors;
+            if (last_sum_ios == 0) last_sum_ios = sum_ios;
+            if (last_sum_ticks == 0) last_sum_ticks = sum_ticks;
             active_pct = (float)(io_ticks - last_io_ticks) / ResourceWatcher.UPDATE_INTERVAL;
+            read_speed = SECTOR_SIZE * (float)(read_sectors - last_read_sectors) / (ResourceWatcher.UPDATE_INTERVAL / 1000.0f);
+            write_speed = SECTOR_SIZE * (float)(write_sectors - last_write_sectors) / (ResourceWatcher.UPDATE_INTERVAL / 1000.0f);
+            long handled_ios = sum_ios - last_sum_ios;
+            if (handled_ios == 0)
+                response_time = 0;
+            else
+                response_time = (float)(sum_ticks - last_sum_ticks) / handled_ios; // miliseconds
             
             btn.Status = "%s\n%.1f %%".printf(Model, active_pct*100.0f);
             btn.chart.push_value(active_pct);
             page.chart.push_value(active_pct);
+            page.chartSpeed.DataPoints2[page.chartSpeed.DataStart] = write_speed;
+            page.chartSpeed.push_value(read_speed);
+            page.lblMaxSpeed.label = _("Max: %s/s".printf(Utils.humanSize(page.chartSpeed.MaxValue/1024, 1)));
+            page.lblActiveTime.label = "%.1f %%".printf(active_pct*100.0f);
+            page.lblReadSpeed.label = _("%s/s").printf(Utils.humanSize(read_speed/1024, 1));
+            page.lblWriteSpeed.label = _("%s/s").printf(Utils.humanSize(write_speed/1024, 1));
+            page.lblTotalRead.label = Utils.humanSize(read_sectors/2, 2, 3);
+            page.lblTotalWrite.label = Utils.humanSize(write_sectors/2, 2, 3);
+            page.lblResponseTime.label = _("%.2f ms").printf(response_time);
 
             last_io_ticks = io_ticks;
+            last_read_sectors = read_sectors;
+            last_write_sectors = write_sectors;
+            last_sum_ios = sum_ios;
+            last_sum_ticks = sum_ticks;
         }
     }
 

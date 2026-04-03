@@ -5,10 +5,12 @@ namespace Leaftop {
         public Gdk.RGBA ChartFill = { 0.34f, 0.58f, 0.92f, 0.5f };
         public bool DrawGrid = true;
         public float[] DataPoints = { 0.3f, 0.5f, 0.2f, 0.8f, 0.7f };
+        public float[] DataPoints2 = {};
         public uint DataStart = 0;
         public float MinValue = 0.0f;
         public float MaxValue = 1.0f;
         public bool AutoScale = false;
+        public bool SecondaryGraph = false;
 
         static construct {
             set_css_name ("LeaftopChartWidget");
@@ -21,6 +23,8 @@ namespace Leaftop {
             if (AutoScale) {
                 float max = 0.0f;
                 foreach (float v in DataPoints)
+                    if (v > max) max = v;
+                foreach (float v in DataPoints2)
                     if (v > max) max = v;
 
                 MaxValue += 0.6f * (max - MaxValue);
@@ -68,6 +72,20 @@ namespace Leaftop {
             ctx.stroke_preserve();
             ctx.set_source_rgba(ChartFill.red, ChartFill.green, ChartFill.blue, ChartFill.alpha);
             ctx.fill();
+
+            if (SecondaryGraph) {
+                ctx.set_source_rgba(ChartColor.red, ChartColor.green, ChartColor.blue, ChartColor.alpha);
+                ctx.set_dash({6.0, 3.0}, 0);
+                ctx.move_to(0, h);
+                for (int i = 0; i < DataPoints.length; i++) {
+                    int j = (i + (int)DataStart) % DataPoints.length;
+                    float val = DataPoints2[j];
+                    double x = w * (double)i / (DataPoints.length - 1); 
+                    double y = h - h * (val - MinValue) / (MaxValue - MinValue);
+                    ctx.line_to(x, y);
+                }
+                ctx.stroke();
+            }
         }
     }
 }
