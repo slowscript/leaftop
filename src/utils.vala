@@ -1,5 +1,9 @@
 namespace Leaftop.Utils {
-    const string[] UNITS = {"kB", "MB", "GB"};
+    const string[] UNITS = {"kB", "MB", "GB", "TB"};
+    const string[] SIGNALS = {"0", "sighup", "sigint", "sigquit", "sigill", "sigtrap", "sigabrt", "sigbus", "sigfpe", "sigkill",
+                              "sigusr1", "sigsegv", "sigusr2", "sigpipe", "sigalrm", "sigterm", "sigstkflt", "sigchld", "sigcont", "sigstop",
+                              "sigtstp", "sigttin", "sigttou", "sigurg", "sigxcpu", "sigxfsz", "sigvtalrm", "sigprof", "sigwinch", "sigio",
+                              "sigpwr", "sigsys"};
 
     string humanSize(float sizekb, int decimals = 2, int max_unit = 1) {
         int unit = 0;
@@ -44,10 +48,8 @@ namespace Leaftop.Utils {
     public Gee.HashMap<string,int> signalNameToInt() {
         if (_signalNameToInt == null) {
             _signalNameToInt = new Gee.HashMap<string, int>();
-            _signalNameToInt["sighup"] = 1;
-            _signalNameToInt["sigint"] = 2;
-            _signalNameToInt["sigkill"] = 9;
-            _signalNameToInt["sigterm"] = 15;
+            for (int i = 0; i < SIGNALS.length; i++)
+                _signalNameToInt[SIGNALS[i]] = i;
         }
         return _signalNameToInt;
     }

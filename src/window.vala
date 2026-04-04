@@ -15,6 +15,8 @@ namespace Leaftop {
         private unowned Gtk.Label lblDiskTotal;
         [GtkChild]
         private unowned Gtk.Label lblNetTotal;
+        [GtkChild]
+        private unowned Gtk.MenuButton menuSignal;
 
         private ListStore listStore;
         private ProcessWatcher watcher;
@@ -89,6 +91,7 @@ namespace Leaftop {
                 { "set-process-grouping", this.on_set_grouping, "s", "\"simple\"" },
             };
             this.add_action_entries(action_entries, this);
+            this.setup_signal_menu();
 
             this.watcher = new ProcessWatcher(listStore);
             this.watcher.mSorter = this.column_view.sorter;
@@ -133,6 +136,13 @@ namespace Leaftop {
             watcher.setGrouping(g);
             a.set_state(param);
             Timeout.add_once(200, () => this.column_view.scroll_to(0, null, Gtk.ListScrollFlags.NONE, null));
+        }
+
+        private void setup_signal_menu() {
+            Menu menu = new Menu();
+            for (int i = 1; i < Utils.SIGNALS.length; i++)
+                menu.append("%d - %s".printf(i, Utils.SIGNALS[i].up()), "win.send-signal::" + Utils.SIGNALS[i]);
+            menuSignal.menu_model = menu;
         }
 
         private ListModel? createModelFunc(Object obj) {

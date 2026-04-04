@@ -50,11 +50,10 @@
                     <property name="margin-end">4</property>
                     <property name="spacing">4</property>
                     <child>
-                      <object class="GtkMenuButton">
+                      <object class="GtkMenuButton" id="menuSignal">
                         <property name="icon-name">send_signal</property>
                         <property name="label" translatable="yes">Signal</property>
                         <property name="direction">GTK_ARROW_UP</property>
-                        <property name="menu-model">signal_menu</property>
                       </object>
                     </child>
                     <child type="end">
