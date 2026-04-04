@@ -9,6 +9,7 @@ namespace Leaftop {
         public uint DataStart = 0;
         public float MinValue = 0.0f;
         public float MaxValue = 1.0f;
+        public float MinAutoScale = 0.1f;
         public bool AutoScale = false;
         public bool SecondaryGraph = false;
 
@@ -21,7 +22,7 @@ namespace Leaftop {
             DataStart %= DataPoints.length;
 
             if (AutoScale) {
-                float max = 0.0f;
+                float max = MinAutoScale;
                 foreach (float v in DataPoints)
                     if (v > max) max = v;
                 foreach (float v in DataPoints2)

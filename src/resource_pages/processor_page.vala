@@ -48,7 +48,7 @@ namespace Leaftop {
                 cpuCharts[i] = new ChartWidget();
                 cpuCharts[i].DataPoints = new float[ResourceWatcher.ChartHistoryLength];
                 cpuCharts[i].hexpand = true;
-                cpuCharts[i].height_request = 300 / numRows;
+                cpuCharts[i].height_request = 250 / numRows;
                 chartGrid.attach(cpuCharts[i], i % numCols, i / numCols);
             }
             string cpuinfo = Utils.readFile("/proc/cpuinfo");
@@ -57,8 +57,8 @@ namespace Leaftop {
             // Second column (static info)
             details.add_column();
             // Base and max clock
-            string baseclock = Utils.readFile("/sys/devices/system/cpu/cpufreq/policy0/base_frequency");
-            details.add_row(_("Base clock:"), "%.2f GHz".printf(int.parse(baseclock)/1000000.0f));
+            string baseclock = Utils.readFile("/sys/devices/system/cpu/cpufreq/policy0/base_frequency") ?? "-";
+            details.add_row(_("Base clock:"), baseclock[0].isdigit() ? "%.2f GHz".printf(int.parse(baseclock)/1000000.0f) : baseclock);
             string maxclock = Utils.readFile("/sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq");
             details.add_row(_("Max clock:"), "%.2f GHz".printf(int.parse(maxclock)/1000000.0f));
             // Topology
@@ -150,6 +150,7 @@ namespace Leaftop {
                 die_ids.add(die);
                 string core = Utils.readFile("/sys/devices/system/cpu/%s/topology/core_id".printf(cpu));
                 core_ids.add(core);
+                // Cache
                 try {
                     foreach (FileInfo fi in Utils.enumerate_dir("/sys/devices/system/cpu/%s/cache".printf(cpu))) {
                         if (fi.get_file_type() != FileType.DIRECTORY) continue;

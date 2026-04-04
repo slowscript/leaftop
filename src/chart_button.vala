@@ -11,7 +11,7 @@ namespace Leaftop {
 
         construct {
             width_request = 220;
-            height_request = 50;
+            height_request = 60;
 
             var hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 4);
             hbox.margin_start = hbox.margin_end = hbox.margin_top = hbox.margin_bottom = 4;

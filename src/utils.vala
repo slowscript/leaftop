@@ -56,7 +56,7 @@ namespace Leaftop.Utils {
         Gee.ArrayList<string> devs = new Gee.ArrayList<string>();
         var dir = File.new_for_path("/sys/block");
         try {
-            var children = dir.enumerate_children("standard::*", GLib.FileQueryInfoFlags.NONE);
+            var children = dir.enumerate_children(FileAttribute.STANDARD_NAME, GLib.FileQueryInfoFlags.NONE);
             FileInfo fi;
             while ((fi = children.next_file()) != null) {
                 var name = fi.get_name();
@@ -75,19 +75,12 @@ namespace Leaftop.Utils {
         Gee.ArrayList<string> ifs = new Gee.ArrayList<string>();
         var dir = File.new_for_path("/sys/class/net");
         try {
-            var children = dir.enumerate_children("standard::*", GLib.FileQueryInfoFlags.NONE);
+            var children = dir.enumerate_children(FileAttribute.STANDARD_NAME, GLib.FileQueryInfoFlags.NONE);
             FileInfo fi;
             while ((fi = children.next_file()) != null) {
                 var name = fi.get_name();
                 if (name == "lo") continue;
-                try {
-                    string res;
-                    GLib.FileUtils.get_contents("/sys/class/net/" + name + "/carrier", out res);
-                    if (res.strip() == "0") continue;
-                    /*long flags = long.parse(res);
-                    if ((flags & 1) == 0) continue; // down
-                    if ((flags & (1 << 3)) != 0) continue; //loopback*/
-                } catch {continue;} // No carrier
+                if (readFile("/sys/class/net/" + name + "/carrier")?.strip() != "1") continue;
                 ifs.add(name);
             }
         } catch (Error e) {
@@ -96,12 +89,13 @@ namespace Leaftop.Utils {
         return ifs.to_array();
     }
 
-    public string? readFile(string path) {
+    public string? readFile(string path, bool verbose = false) {
         string res;
         try {
             GLib.FileUtils.get_contents(path, out res);
         } catch (FileError e) {
-            print("Could not read %s: %s\n", path, e.message);
+            if (verbose)
+                print("Could not read %s: %s\n", path, e.message);
             return null;
         }
         return res;

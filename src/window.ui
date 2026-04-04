@@ -37,10 +37,6 @@
                     <property name="valign">fill</property>
                     <child>
                       <object class="GtkColumnView" id="column_view">
-                        <!--<property name="label">Hello, World!</property>
-                        <style>
-                          <class name="title-1"/>
-                        </style>-->
                       </object>
                     </child>
                   </object>
@@ -104,13 +100,18 @@
               <object class="GtkBox">
                 <property name="orientation">horizontal</property>
                 <child>
-                  <object class="GtkBox" id="boxPageSwitcher">
-                    <property name="orientation">vertical</property>
-                    <property name="margin-start">4</property>
-                    <property name="margin-end">4</property>
-                    <property name="margin-top">4</property>
-                    <property name="margin-bottom">4</property>
-                    <property name="spacing">4</property>
+                  <object class="GtkScrolledWindow">
+                    <property name="hscrollbar-policy">NEVER</property>
+                    <child>
+                      <object class="GtkBox" id="boxPageSwitcher">
+                        <property name="orientation">vertical</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                        <property name="spacing">4</property>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>

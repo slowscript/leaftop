@@ -143,6 +143,7 @@ namespace Leaftop {
             var cell = (Gtk.ColumnViewCell)obj;
             var label = new Gtk.Inscription("");
             label.height_request = 25;
+            label.xalign = 1.0f;
             cell.set_child(label);
         }
 
