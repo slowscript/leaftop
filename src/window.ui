@@ -131,6 +131,31 @@
   </template>
   <menu id="primary_menu">
     <section>
+      <submenu>
+        <attribute name="label" translatable="yes">Process _grouping</attribute>
+        <section>
+          <item>
+            <attribute name="label" translatable="yes">Flat list</attribute>
+            <attribute name="action">win.set-process-grouping</attribute>
+            <attribute name="target">flat</attribute>
+          </item>
+          <item>
+            <attribute name="label" translatable="yes">Simple grouping</attribute>
+            <attribute name="action">win.set-process-grouping</attribute>
+            <attribute name="target">simple</attribute>
+          </item>
+          <item>
+            <attribute name="label" translatable="yes">Full tree</attribute>
+            <attribute name="action">win.set-process-grouping</attribute>
+            <attribute name="target">tree</attribute>
+          </item>
+          <item>
+            <attribute name="label" translatable="yes">By cgroup</attribute>
+            <attribute name="action">win.set-process-grouping</attribute>
+            <attribute name="target">cgroup</attribute>
+          </item>
+        </section>
+      </submenu>
       <item>
         <attribute name="label" translatable="yes">_Preferences</attribute>
         <attribute name="action">app.preferences</attribute>

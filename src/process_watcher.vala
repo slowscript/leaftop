@@ -1,4 +1,8 @@
 namespace Leaftop {
+    enum ProcessGrouping {
+        SIMPLE, FLAT, TREE, CGROUP
+    }
+
     class ProcessWatcher {
         public const int UPDATE_INTERVAL = 2000;
         public static long CLK_TCK;
@@ -6,6 +10,8 @@ namespace Leaftop {
         const string[] CommonRoots = {"systemd", "cinnamon", "cinnamon-launcher", "cinnamon-session", "cinnamon-session-binary", "lightdm"};
         private ListStore listStore;
         public Gee.HashMap<int, ListStore> childStores = new Gee.HashMap<int, ListStore>();
+        public ProcessGrouping grouping = ProcessGrouping.SIMPLE;
+        
         private Gee.HashMap<int, Process> processes;
         private Gee.HashMap<string, AppInfo> installedApps = new Gee.HashMap<string, AppInfo>();
 
@@ -31,7 +37,7 @@ namespace Leaftop {
             }
         }
 
-        public void startWatching() {
+        void initProcessLists() {
             // Load processes
             try {
                 processes = loadAllProcesses();
@@ -40,17 +46,27 @@ namespace Leaftop {
                 return;
             }
             // Populate parent info
-            List<Process> roots = new List<Process>();
+            Gee.LinkedList<Process> roots = new Gee.LinkedList<Process>();
             foreach (Process p in processes.values) {
                 if (addProcessToTree(p))
-                    roots.append(p);
+                    roots.add(p);
             }
             // Only after we have parent info can proc be added to store
             foreach (Process p in roots) {
                 p.updateTreeUtil();
-                listStore.append(p);
             }
+            listStore.splice(0, 0, roots.to_array());
+        }
+
+        public void startWatching() {
+            initProcessLists();
             Timeout.add(UPDATE_INTERVAL, update);
+        }
+
+        public void setGrouping(ProcessGrouping _grouping) {
+            grouping = _grouping;
+            listStore.remove_all();
+            initProcessLists();
         }
 
         private List<int> loadAllPIDs() throws Error {
@@ -81,7 +97,9 @@ namespace Leaftop {
             bool isRoot = false;
             if (p.ParentID in processes.keys) {
                 Process parent = processes[p.ParentID];
-                if (parent.Name in CommonRoots) {
+                if (grouping == ProcessGrouping.FLAT
+                    || (grouping == ProcessGrouping.SIMPLE && parent.Name in CommonRoots)
+                    || (grouping == ProcessGrouping.CGROUP && parent.CGroup != p.CGroup)) {
                     p.Parent = null;
                     isRoot = true;
                 } else {

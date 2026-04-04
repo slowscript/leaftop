@@ -81,15 +81,12 @@ namespace Leaftop {
             column_disk.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "DiskTreeUtil"));
             column_disk.fixed_width = 80;
             this.column_view.append_column(column_disk);
-            // Timeout is to prevent slowdown
-            //Timeout.add_once(50, () => this.column_view.sort_by_column((Gtk.ColumnViewColumn)column_view.columns.get_item(0), Gtk.SortType.ASCENDING));
-            this.show.connect(() => {
-                this.column_view.sort_by_column((Gtk.ColumnViewColumn)column_view.columns.get_item(3), Gtk.SortType.DESCENDING);
-                Timeout.add_once(200, () => this.column_view.scroll_to(0, null, Gtk.ListScrollFlags.NONE, null));
-            });
+            // TODO: Restore last sort from settings
+            this.column_view.sort_by_column((Gtk.ColumnViewColumn)column_view.columns.get_item(3), Gtk.SortType.DESCENDING);
 
             ActionEntry[] action_entries = {
                 { "send-signal", this.on_send_signal, "s" },
+                { "set-process-grouping", this.on_set_grouping, "s", "\"simple\"" },
             };
             this.add_action_entries(action_entries, this);
 
@@ -119,6 +116,23 @@ namespace Leaftop {
                 print("Send signal %d to %d:%s\n", sig, p.PID, p.Name);
                 Posix.kill(p.PID, sig);
             }
+        }
+
+        private void on_set_grouping(SimpleAction a, Variant? param) {
+            string grouping = param.get_string();
+            print("Set grouping %s\n", grouping);
+            ProcessGrouping g;
+            if (grouping == "flat")
+                g = ProcessGrouping.FLAT;
+            else if (grouping == "tree")
+                g = ProcessGrouping.TREE;
+            else if (grouping == "cgroup")
+                g = ProcessGrouping.CGROUP;
+            else
+                g = ProcessGrouping.SIMPLE;
+            watcher.setGrouping(g);
+            a.set_state(param);
+            Timeout.add_once(200, () => this.column_view.scroll_to(0, null, Gtk.ListScrollFlags.NONE, null));
         }
 
         private ListModel? createModelFunc(Object obj) {
@@ -157,7 +171,7 @@ namespace Leaftop {
             Process proc = (Process)row.item;
             expander.hide_expander = proc.Children.size == 0;
             bool newRowToExpand = false;
-            if ((row.depth == 0) && !proc.expanded) {
+            if (watcher.grouping != ProcessGrouping.TREE && (row.depth == 0) && !proc.expanded) {
                 proc.expanded = true;
                 rowsToExpand.append(row);
                 newRowToExpand = true;
