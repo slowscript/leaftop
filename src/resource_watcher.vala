@@ -341,6 +341,7 @@ namespace Leaftop {
             page.chartSpeed.DataPoints2[page.chartSpeed.DataStart] = write_speed;
             page.chartSpeed.push_value(read_speed);
             page.lblMaxSpeed.label = _("Max: %s/s".printf(Utils.humanSize(page.chartSpeed.MaxValue/1024, 1)));
+
             page.lblActiveTime.label = "%.1f %%".printf(active_pct*100.0f);
             page.lblReadSpeed.label = _("%s/s").printf(Utils.humanSize(read_speed/1024, 1));
             page.lblWriteSpeed.label = _("%s/s").printf(Utils.humanSize(write_speed/1024, 1));
@@ -379,18 +380,22 @@ namespace Leaftop {
             
             btn = new ChartButton();
             btn.chart.DataPoints = new float[ResourceWatcher.ChartHistoryLength];
+            btn.chart.DataPoints2 = new float[ResourceWatcher.ChartHistoryLength];
             btn.chart.ChartColor = {0.12f, 0.88f, 0.3f, 1.0f};
             btn.chart.ChartFill = {0.12f, 0.88f, 0.3f, 0.5f};
             btn.chart.AutoScale = true;
+            btn.chart.SecondaryGraph = true;
             btn.Title = _("Network (%s)").printf(ifname);
 
             page = new NetworkPage();
             page.lblAdapter.label = adapter;
             page.lblTitle.label = btn.Title;
             page.chart.DataPoints = new float[ResourceWatcher.ChartHistoryLength];
+            page.chart.DataPoints2 = new float[ResourceWatcher.ChartHistoryLength];
             page.chart.ChartColor = {0.12f, 0.88f, 0.3f, 1.0f};
             page.chart.ChartFill = {0.12f, 0.88f, 0.3f, 0.5f};
             page.chart.AutoScale = true;
+            page.chart.SecondaryGraph = true;
             stackPage = page;
         }
 
@@ -412,11 +417,61 @@ namespace Leaftop {
 
             btn.Status = "↑ %s/s\n↓ %s/s".printf(Utils.humanSize(tx_speed/1024, 1, 2), 
                 Utils.humanSize(rx_speed/1024, 1, 2));
-            btn.chart.push_value(rx_speed); // TODO: Dual chart with tx_speed
+            btn.chart.DataPoints2[btn.chart.DataStart] = tx_speed;
+            btn.chart.push_value(rx_speed);
+            page.chart.DataPoints2[page.chart.DataStart] = tx_speed;
             page.chart.push_value(rx_speed);
+            page.lblMaxSpeed.label = _("Max: %s/s".printf(Utils.humanSize(page.chart.MaxValue/1024, 1)));
+            
+            //TODO: option for bps speeds
+            page.lblRxSpeed.label = _("%s/s").printf(Utils.humanSize(rx_speed/1024, 1));
+            page.lblTxSpeed.label = _("%s/s").printf(Utils.humanSize(tx_speed/1024, 1));
+            page.lblRxTotal.label = Utils.humanSize(rx_bytes/1024, 2, 3);
+            page.lblTxTotal.label = Utils.humanSize(tx_bytes/1024, 2, 3);
+            
+            page.lblType.label = get_if_type();
+            page.lblLinkSpeed.label = (Utils.readFile("/sys/class/net/%s/speed".printf(ifname))?.strip().concat(_(" Mbps")) ?? "-");
+            page.lblMACAddress.label = Utils.readFile("/sys/class/net/%s/address".printf(ifname))?.strip() ?? "-";
+            page.lblIPAddress.label = string.joinv("\n", get_ip_addresses().to_array());
+            // TODO: WiFi info via netlink?
 
             last_rx_bytes = rx_bytes;
             last_tx_bytes = tx_bytes;
+        }
+
+        string get_if_type() {
+            if (ifname.has_prefix("en") || ifname.has_prefix("eth")) return "Ethernet";
+            else if (ifname.has_prefix("wl")) return "WiFi";
+            else if (ifname.has_prefix("wg") || ifname.has_prefix("tun") || ifname.has_prefix("vpn")) return "VPN";
+            else if (ifname.has_prefix("br") || ifname.has_prefix("virbr")) return "Bridge";
+            else if (ifname.has_prefix("can") || ifname.has_prefix("vcan")) return "CAN";
+            else {
+                int i = 0;
+                while (ifname[i].isalpha()) i++;
+                return ifname.substring(0, i);
+            }
+        }
+
+        Gee.ArrayList<string> get_ip_addresses() {
+            Gee.ArrayList<string> res = new Gee.ArrayList<string>();
+            Linux.Network.IfAddrs ifa0;
+            Linux.Network.getifaddrs(out ifa0);
+            weak Linux.Network.IfAddrs? ifa;
+            ifa = ifa0;
+            uint8[] buf = new uint8[Posix.INET6_ADDRSTRLEN];
+            while (ifa != null) {
+                if (ifa.ifa_name == ifname && ifa.ifa_addr != null) {
+                    string ip = null;
+                    if (ifa.ifa_addr.sa_family == Posix.AF_INET)
+                        ip = Posix.inet_ntop(ifa.ifa_addr.sa_family, &((Posix.SockAddrIn?)ifa.ifa_addr).sin_addr, buf);
+                    else if (ifa.ifa_addr.sa_family == Posix.AF_INET6)
+                        ip = Posix.inet_ntop(ifa.ifa_addr.sa_family, &((Posix.SockAddrIn6?)ifa.ifa_addr).sin6_addr, buf);
+                    if (ip != null)
+                        res.add(ip);
+                }
+                ifa = ifa.ifa_next;
+            }
+            return res;
         }
     }
 }

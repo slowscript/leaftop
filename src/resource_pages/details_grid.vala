@@ -13,8 +13,11 @@ namespace Leaftop {
             Gtk.Label lblLabel = new Gtk.Label(label);
             lblLabel.add_css_class("bold");
             lblLabel.halign = Gtk.Align.START;
+            lblLabel.yalign = 0;
             Gtk.Label lblValue = new Gtk.Label(value);
             lblValue.halign = Gtk.Align.START;
+            lblValue.yalign = 0;
+            lblValue.ellipsize = Pango.EllipsizeMode.END;
             grid.attach(lblLabel, column, row);
             grid.attach(lblValue, column+1, row);
             row += 1;
