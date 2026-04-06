@@ -1,3 +1,16 @@
+leaftop (0.2) unstable; urgency=medium
+
+  * Added details to resource pages
+  * Added more process grouping options (flat, tree, cgroup)
+  * Added ability to set process priority/nice
+  * Added disk and network usage to status bar
+  * It is now possible to send all standard signals
+  * Some UI tweaks
+  * Improved startup performance
+  * Fixed a random crash
+
+ -- slowscript <slowscript@seznam.cz>  Mon, 06 Apr 2026 17:24:14 +0100
+
 leaftop (0.1) unstable; urgency=medium
 
   * Initial release

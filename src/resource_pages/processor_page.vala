@@ -59,7 +59,7 @@ namespace Leaftop {
             // Base and max clock
             string baseclock = Utils.readFile("/sys/devices/system/cpu/cpufreq/policy0/base_frequency") ?? "-";
             details.add_row(_("Base clock:"), baseclock[0].isdigit() ? "%.2f GHz".printf(int.parse(baseclock)/1000000.0f) : baseclock);
-            string maxclock = Utils.readFile("/sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq");
+            string maxclock = Utils.readFile("/sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq") ?? "-";
             details.add_row(_("Max clock:"), "%.2f GHz".printf(int.parse(maxclock)/1000000.0f));
             // Topology
             CPUTopo.read();
