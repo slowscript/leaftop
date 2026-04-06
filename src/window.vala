@@ -88,6 +88,8 @@ namespace Leaftop {
 
             ActionEntry[] action_entries = {
                 { "send-signal", this.on_send_signal, "s" },
+                { "set-nice", this.on_set_nice, "i" },
+                { "set-custom-nice", this.on_set_custom_nice },
                 { "set-process-grouping", this.on_set_grouping, "s", "\"simple\"" },
             };
             this.add_action_entries(action_entries, this);
@@ -110,15 +112,45 @@ namespace Leaftop {
         private void on_send_signal(SimpleAction a, Variant? param) {
             string sig_name = param.get_string();
             print("Send signal %s\n", sig_name);
-            if (listSelection.selected_item == null)
-                return;
-            var itm = (Gtk.TreeListRow)listSelection.selected_item;
-            Process p = (Process)itm.item;
+            Process? p = get_selected_process();
             if (p != null) {
                 int sig = Utils.signalNameToInt()[sig_name];
                 print("Send signal %d to %d:%s\n", sig, p.PID, p.Name);
                 Posix.kill(p.PID, sig);
             }
+        }
+
+        private void on_set_nice(SimpleAction a, Variant? param) {
+            int nice = param.get_int32();
+            Process? p = get_selected_process();
+            if (p != null) {
+                print("Set nice %d to %d:%s\n", nice, p.PID, p.Name);
+                int res = Posix.setpriority(Posix.PRIO_PROCESS, p.PID, nice);
+                if (res != 0) {
+                    if (Posix.errno in new int[]{Posix.EPERM, Posix.EACCES}) {
+                        print("Need permission to set prio, trying pkexec...\n");
+                        try {
+                            GLib.Process.spawn_sync(null, new string[]{"pkexec", "renice", "--priority", nice.to_string(), "-p", p.PID.to_string()},
+                                null, GLib.SpawnFlags.SEARCH_PATH, null);
+                        } catch (SpawnError err) {
+                            print("Failed to run renice: %s\n", err.message);
+                            new Gtk.AlertDialog("Failed to run renice: %s\n", err.message).show(this);
+                        }
+                    } else
+                        new Gtk.AlertDialog("Error setting priority: %s\n", Posix.strerror(Posix.errno)).show(this);
+                }
+            }
+        }
+
+        private void on_set_custom_nice(SimpleAction a) {
+            show_input_dialog(_("Enter custom priority (nice)"), (res) => {
+                int nice;
+                if (int.try_parse(res, out nice) && nice >= -20 && nice <= 19) {
+                    activate_action_variant("win.set-nice", new GLib.Variant.int32(nice));
+                } else {
+                    new Gtk.AlertDialog(_("Priority must be a number between -20 (highest) and 19 (lowest)")).show(this);
+                }
+            });
         }
 
         private void on_set_grouping(SimpleAction a, Variant? param) {
@@ -143,6 +175,36 @@ namespace Leaftop {
             for (int i = 1; i < Utils.SIGNALS.length; i++)
                 menu.append("%d - %s".printf(i, Utils.SIGNALS[i].up()), "win.send-signal::" + Utils.SIGNALS[i]);
             menuSignal.menu_model = menu;
+        }
+
+        private Process? get_selected_process() {
+            if (listSelection.selected_item == null)
+                return null;
+            var itm = (Gtk.TreeListRow)listSelection.selected_item;
+            return (Process)itm.item;
+        }
+
+        delegate void InputDialogResult(string res);
+        private void show_input_dialog (string title, InputDialogResult cb) {
+            var dialog = new Gtk.Dialog ();
+            dialog.set_transient_for (this);
+            dialog.set_modal (true);
+            dialog.set_title (title);
+
+            dialog.add_button (_("Cancel"), Gtk.ResponseType.CANCEL);
+            dialog.add_button (_("OK"), Gtk.ResponseType.OK);
+
+            var entry = new Gtk.Entry ();
+            var content = dialog.get_content_area ();
+            content.append (entry);
+
+            dialog.response.connect ((resp) => {
+                if (resp == Gtk.ResponseType.OK)
+                    cb(entry.text);
+                dialog.close ();
+            });
+
+            dialog.show ();
         }
 
         private ListModel? createModelFunc(Object obj) {

@@ -56,6 +56,14 @@
                         <property name="direction">GTK_ARROW_UP</property>
                       </object>
                     </child>
+                    <child>
+                      <object class="GtkMenuButton">
+                        <property name="icon-name">face-smile-symbolic</property>
+                        <property name="label">Priority</property>
+                        <property name="direction">GTK_ARROW_UP</property>
+                        <property name="menu-model">priority_menu</property>
+                      </object>
+                    </child>
                     <child type="end">
                       <object class="GtkLabel" id="lblCPUTotal">
                         <property name="width-request">80</property>
@@ -100,7 +108,7 @@
                 <property name="orientation">horizontal</property>
                 <child>
                   <object class="GtkScrolledWindow">
-                    <property name="hscrollbar-policy">NEVER</property>
+                    <property name="hscrollbar-policy">never</property>
                     <child>
                       <object class="GtkBox" id="boxPageSwitcher">
                         <property name="orientation">vertical</property>
@@ -169,21 +177,39 @@
       </item>
     </section>
   </menu>
-  <menu id="signal_menu">
+  <menu id="priority_menu">
     <item>
-      <attribute name="label">SIGTERM</attribute>
-      <attribute name="action">win.send-signal</attribute>
-      <attribute name="target">sigterm</attribute>
+      <attribute name="label" translatable="yes">-20 - Very high</attribute>
+      <attribute name="action">win.set-nice</attribute>
+      <attribute name="target" type="i">-20</attribute>
     </item>
     <item>
-      <attribute name="label">SIGKILL</attribute>
-      <attribute name="action">win.send-signal</attribute>
-      <attribute name="target">sigkill</attribute>
+      <attribute name="label" translatable="yes">-5 - High</attribute>
+      <attribute name="action">win.set-nice</attribute>
+      <attribute name="target" type="i">-5</attribute>
     </item>
     <item>
-      <attribute name="label">SIGINT</attribute>
-      <attribute name="action">win.send-signal</attribute>
-      <attribute name="target">sigint</attribute>
+      <attribute name="label" translatable="yes">0 - Normal</attribute>
+      <attribute name="action">win.set-nice</attribute>
+      <attribute name="target" type="i">0</attribute>
+    </item>
+    <item>
+      <attribute name="label" translatable="yes">5 - Low</attribute>
+      <attribute name="action">win.set-nice</attribute>
+      <attribute name="target" type="i">5</attribute>
+    </item>
+    <item>
+      <attribute name="label" translatable="yes">19 - Very low</attribute>
+      <attribute name="action">win.set-nice</attribute>
+      <attribute name="target" type="i">19</attribute>
+    </item>
+    <item>
+      <attribute name="label" translatable="yes">Custom</attribute>
+      <attribute name="action">win.set-custom-nice</attribute>
+    </item>
+    <item>
+      <attribute name="label" translatable="yes">Real-time</attribute>
+      <attribute name="action">win.set-real-time</attribute>
     </item>
   </menu>
 </interface>
