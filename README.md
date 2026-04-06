@@ -4,9 +4,22 @@ A graphical [top](https://en.wikipedia.org/wiki/Top_(software))-style Linux syst
 
 Made with plain GTK 4 (no libadwaita).
 
+## Features
+
+- Process table with better grouping
+  - Simple groups (processes under known launchers), flat list, full tree, by CGroup
+- Resources page with graphs and some useful details, network and disk stats split by device
+- Setting process priority, scheduling options (WIP)
+- Detailed process information, open files, network connections (WIP)
+- Per-process network usage (WIP)
+
 ## Screenshot
 
 ![](data/screenshot.png)
+
+## Download
+
+Debian/Ubuntu/Mint packages as well as generic tarballs can be downloaded from [Releases](https://github.com/slowscript/leaftop/releases) page (under Assets)
 
 ## Building
 
