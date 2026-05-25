@@ -22,6 +22,7 @@ namespace Leaftop {
         private ProcessWatcher watcher;
         private Gtk.SingleSelection listSelection;
         private ResourceWatcher resource_watcher;
+        private Gtk.PopoverMenu proc_popover;
 
         public Window (Gtk.Application app) {
             Object (application: app);
@@ -91,6 +92,7 @@ namespace Leaftop {
                 { "set-nice", this.on_set_nice, "i" },
                 { "set-custom-nice", this.on_set_custom_nice },
                 { "set-process-grouping", this.on_set_grouping, "s", "\"simple\"" },
+                { "proc-props", this.on_show_proc_props },
             };
             this.add_action_entries(action_entries, this);
             this.setup_signal_menu();
@@ -107,6 +109,19 @@ namespace Leaftop {
             this.resource_watcher.lblDiskTotal = lblDiskTotal;
             this.resource_watcher.lblNetTotal = lblNetTotal;
             this.resource_watcher.start_watching();
+
+            Menu proc_menu = new Menu();
+            proc_menu.append(_("Properties"), "win.proc-props");
+            Menu sig_section = new Menu();
+            sig_section.append(_("Stop"), "win.send-signal::sigstop");
+            sig_section.append(_("Resume"), "win.send-signal::sigcont");
+            sig_section.append(_("Terminate"), "win.send-signal::sigterm");
+            sig_section.append(_("Kill"), "win.send-signal::sigkill");
+            proc_menu.append_section (null, sig_section);
+            
+            proc_popover = new Gtk.PopoverMenu.from_model(proc_menu);
+            proc_popover.set_parent(column_view);
+            proc_popover.set_has_arrow (false);
         }
 
         private void on_send_signal(SimpleAction a, Variant? param) {
@@ -170,6 +185,10 @@ namespace Leaftop {
             Timeout.add_once(200, () => this.column_view.scroll_to(0, null, Gtk.ListScrollFlags.NONE, null));
         }
 
+        private void on_show_proc_props(SimpleAction a) {
+            print("Show proc props\n");
+        }
+
         private void setup_signal_menu() {
             Menu menu = new Menu();
             for (int i = 1; i < Utils.SIGNALS.length; i++)
@@ -182,6 +201,18 @@ namespace Leaftop {
                 return null;
             var itm = (Gtk.TreeListRow)listSelection.selected_item;
             return (Process)itm.item;
+        }
+
+        public void on_proc_right_click(uint pos, Gtk.Widget parent, int x, int y) {
+            this.listSelection.set_selected(pos);
+            var rect = Gdk.Rectangle() {
+                x = x, y = y,
+                width = 1, height = 1
+            };
+            this.proc_popover.unparent();
+            this.proc_popover.set_parent(parent);
+            this.proc_popover.set_pointing_to(rect);
+            this.proc_popover.popup();
         }
 
         delegate void InputDialogResult(string res);
@@ -219,7 +250,7 @@ namespace Leaftop {
 
         private void setup_expander_cell(Object obj) {
             var cell = (Gtk.ColumnViewCell)obj;
-            var label = new ProcessNameCell();
+            var label = new ProcessNameCell(cell);
             var expander = new Gtk.TreeExpander();
             expander.set_child(label);
             cell.set_child(expander);
