@@ -54,7 +54,7 @@
     </child>
     <child>
       <object class="LeaftopChartWidget" id="chartSpeed">
-        <property name="height_request">200</property>  
+        <property name="height_request">150</property>  
       </object>
     </child>
   </template>
