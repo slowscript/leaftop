@@ -2,6 +2,19 @@ namespace Leaftop {
     enum ProcessGrouping {
         SIMPLE, FLAT, TREE, CGROUP
     }
+    const string[] ProcessGroupings = { "simple", "flat", "tree", "cgroups" };
+    ProcessGrouping processGroupingFromString(string grouping) {
+        ProcessGrouping g;
+        if (grouping == "flat")
+            g = ProcessGrouping.FLAT;
+        else if (grouping == "tree")
+            g = ProcessGrouping.TREE;
+        else if (grouping == "cgroup")
+            g = ProcessGrouping.CGROUP;
+        else
+            g = ProcessGrouping.SIMPLE;
+        return g;
+    }
 
     class ProcessWatcher {
         public const int UPDATE_INTERVAL = 2000;

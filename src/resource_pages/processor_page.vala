@@ -20,14 +20,22 @@ namespace Leaftop {
         public Gtk.Label lblDescriptors;
         public Gtk.Label lblUptime;
         private Gtk.PopoverMenu chart_context_menu;
+        private Settings settings;
 
         construct {
             singleChart.DataPoints = new float[ResourceWatcher.ChartHistoryLength];
             singleChart.DataPoints2 = new float[ResourceWatcher.ChartHistoryLength];
             
+            settings = new Settings("xyz.slowscript.leaftop");
+            bool split = settings.get_boolean("cpu-chart-split");
+            bool sys = settings.get_boolean("cpu-chart-show-system");
+            chartStack.set_visible_child_name(split ? "page_logical" : "page_total");
+            
+            string split_str = split.to_string();
+            string sys_str = sys.to_string();
             ActionEntry[] action_entries = {
-                { "cpu-split", null, null, "false", this.on_cpu_chart_split_toggle },
-                { "cpu-show-sys", null, null, "false", this.on_cpu_chart_show_sys_toggle },
+                { "cpu-split", null, null, split_str, this.on_cpu_chart_split_toggle },
+                { "cpu-show-sys", null, null, sys_str, this.on_cpu_chart_show_sys_toggle },
             };
             SimpleActionGroup action_group = new SimpleActionGroup();
             action_group.add_action_entries(action_entries, this);
@@ -62,7 +70,6 @@ namespace Leaftop {
         }
 
         public void init(int numCPUs) {
-
             int numCols = (int)Math.ceil(Math.sqrt(numCPUs));
             int numRows = (int)Math.ceil((double)numCPUs / numCols);
             cpuCharts = new ChartWidget[numCPUs];
@@ -74,6 +81,7 @@ namespace Leaftop {
                 cpuCharts[i].height_request = 250 / numRows;
                 chartGrid.attach(cpuCharts[i], i % numCols, i / numCols);
             }
+            set_show_system(settings.get_boolean("cpu-chart-show-system"));
             string cpuinfo = Utils.readFile("/proc/cpuinfo");
             lblProcessorName.label = cpuinfo.split("\n")[4].split(":")[1].strip();
 
@@ -107,14 +115,20 @@ namespace Leaftop {
             bool split = val.get_boolean();
             chartStack.set_visible_child_name(split ? "page_logical" : "page_total");
             a.set_state(val);
+            settings.set_boolean("cpu-chart-split", split);
         }
 
         private void on_cpu_chart_show_sys_toggle(SimpleAction a, Variant val) {
             bool sys = val.get_boolean();
+            set_show_system(sys);
+            a.set_state(val);
+            settings.set_boolean("cpu-chart-show-system", sys);
+        }
+
+        private void set_show_system(bool sys) {
             singleChart.SecondaryGraph = sys;
             foreach (var chart in cpuCharts)
                 chart.SecondaryGraph = sys;
-            a.set_state(val);
         }
     }
 

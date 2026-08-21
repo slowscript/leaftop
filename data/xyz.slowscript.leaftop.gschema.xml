@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="leaftop">
 	<schema id="xyz.slowscript.leaftop" path="/xyz/slowscript/leaftop/">
+		<key name="process-grouping" type="s">
+			<default>"simple"</default>
+			<choices>
+				<choice value="simple"/>
+				<choice value="flat"/>
+				<choice value="tree"/>
+				<choice value="cgroup"/>
+			</choices>
+		</key>
+		<key name="cpu-chart-split" type="b">
+			<default>false</default>
+		</key>
+		<key name="cpu-chart-show-system" type="b">
+			<default>false</default>
+		</key>
 	</schema>
 </schemalist>

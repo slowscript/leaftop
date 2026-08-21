@@ -18,6 +18,7 @@ namespace Leaftop {
         [GtkChild]
         private unowned Gtk.MenuButton menuSignal;
 
+        private Settings settings;
         private ListStore listStore;
         private ProcessWatcher watcher;
         private Gtk.SingleSelection listSelection;
@@ -34,6 +35,8 @@ namespace Leaftop {
         }
 
         construct {
+            settings = new Settings("xyz.slowscript.leaftop");
+
             var column_name_factory = new Gtk.SignalListItemFactory();
             column_name_factory.setup.connect (setup_expander_cell);
             column_name_factory.bind.connect(column_name_bind);
@@ -87,11 +90,15 @@ namespace Leaftop {
             // TODO: Restore last sort from settings
             this.column_view.sort_by_column((Gtk.ColumnViewColumn)column_view.columns.get_item(3), Gtk.SortType.DESCENDING);
 
+            string grouping_str = settings.get_string("process-grouping");
+            if (!(grouping_str in ProcessGroupings))
+                grouping_str = settings.get_default_value("process-grouping").get_string();
+            string grouping_v = "\"%s\"".printf(grouping_str);
             ActionEntry[] action_entries = {
                 { "send-signal", this.on_send_signal, "s" },
                 { "set-nice", this.on_set_nice, "i" },
                 { "set-custom-nice", this.on_set_custom_nice },
-                { "set-process-grouping", this.on_set_grouping, "s", "\"simple\"" },
+                { "set-process-grouping", this.on_set_grouping, "s", grouping_v },
                 { "proc-props", this.on_show_proc_props },
             };
             this.add_action_entries(action_entries, this);
@@ -99,6 +106,7 @@ namespace Leaftop {
 
             this.watcher = new ProcessWatcher(listStore);
             this.watcher.mSorter = this.column_view.sorter;
+            this.watcher.grouping = processGroupingFromString(grouping_str);
             this.watcher.startWatching();
 
             this.resource_watcher = new ResourceWatcher();
@@ -171,17 +179,9 @@ namespace Leaftop {
         private void on_set_grouping(SimpleAction a, Variant? param) {
             string grouping = param.get_string();
             print("Set grouping %s\n", grouping);
-            ProcessGrouping g;
-            if (grouping == "flat")
-                g = ProcessGrouping.FLAT;
-            else if (grouping == "tree")
-                g = ProcessGrouping.TREE;
-            else if (grouping == "cgroup")
-                g = ProcessGrouping.CGROUP;
-            else
-                g = ProcessGrouping.SIMPLE;
-            watcher.setGrouping(g);
+            watcher.setGrouping(processGroupingFromString(grouping));
             a.set_state(param);
+            settings.set_string("process-grouping", grouping);
             Timeout.add_once(200, () => this.column_view.scroll_to(0, null, Gtk.ListScrollFlags.NONE, null));
         }
 
