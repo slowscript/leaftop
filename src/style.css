@@ -16,3 +16,8 @@ levelbar block.filled {
     background-color: rgb(87, 148, 235);
     border-color: rgb(87, 148, 235);
 }
+
+/*Fix for adwaita*/
+treeexpander indent {
+	-gtk-icon-size: 16px;
+}
