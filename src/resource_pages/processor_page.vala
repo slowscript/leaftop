@@ -19,14 +19,35 @@ namespace Leaftop {
         public Gtk.Label lblThreads;
         public Gtk.Label lblDescriptors;
         public Gtk.Label lblUptime;
+        private Gtk.PopoverMenu chart_context_menu;
 
         construct {
             singleChart.DataPoints = new float[ResourceWatcher.ChartHistoryLength];
+            singleChart.DataPoints2 = new float[ResourceWatcher.ChartHistoryLength];
             
+            ActionEntry[] action_entries = {
+                { "cpu-split", null, null, "false", this.on_cpu_chart_split_toggle },
+                { "cpu-show-sys", null, null, "false", this.on_cpu_chart_show_sys_toggle },
+            };
+            SimpleActionGroup action_group = new SimpleActionGroup();
+            action_group.add_action_entries(action_entries, this);
+            insert_action_group("cpupage", action_group);
+
+            Menu ctx_menu = new Menu();
+            ctx_menu.append(_("Split by logical CPUs"), "cpupage.cpu-split");
+            ctx_menu.append(_("Show system time percentage"), "cpupage.cpu-show-sys");
+
+            chart_context_menu = new Gtk.PopoverMenu.from_model(ctx_menu);
+            chart_context_menu.set_parent(chartStack);
             var leftClickController = new Gtk.GestureClick();
             leftClickController.button = 3;
             leftClickController.pressed.connect((n, x, y) => {
-                chartStack.set_visible_child_name(chartStack.get_visible_child_name() == "page_total" ? "page_logical" : "page_total");
+                var rect = Gdk.Rectangle() {
+                    x = (int)x, y = (int)y,
+                    width = 1, height = 1
+                };
+                chart_context_menu.set_pointing_to(rect);
+                chart_context_menu.popup();
             });
             chartStack.add_controller(leftClickController);
 
@@ -37,6 +58,7 @@ namespace Leaftop {
             lblThreads = details.add_row(_("Threads:"));
             lblDescriptors = details.add_row(_("Descriptors:"));
             lblUptime = details.add_row(_("Uptime:"));
+            //TODO: Temperature?
         }
 
         public void init(int numCPUs) {
@@ -47,6 +69,7 @@ namespace Leaftop {
             for (int i = 0; i < numCPUs; i++) {
                 cpuCharts[i] = new ChartWidget();
                 cpuCharts[i].DataPoints = new float[ResourceWatcher.ChartHistoryLength];
+                cpuCharts[i].DataPoints2 = new float[ResourceWatcher.ChartHistoryLength];
                 cpuCharts[i].hexpand = true;
                 cpuCharts[i].height_request = 250 / numRows;
                 chartGrid.attach(cpuCharts[i], i % numCols, i / numCols);
@@ -78,6 +101,20 @@ namespace Leaftop {
                 details.add_row(_("Cache %s:".printf(c.type)),
                     _("%s %s-way %s sets").printf(Utils.humanSize(c.size/1024, 0), c.associativity, c.sets));
             }
+        }
+
+        private void on_cpu_chart_split_toggle(SimpleAction a, Variant val) {
+            bool split = val.get_boolean();
+            chartStack.set_visible_child_name(split ? "page_logical" : "page_total");
+            a.set_state(val);
+        }
+
+        private void on_cpu_chart_show_sys_toggle(SimpleAction a, Variant val) {
+            bool sys = val.get_boolean();
+            singleChart.SecondaryGraph = sys;
+            foreach (var chart in cpuCharts)
+                chart.SecondaryGraph = sys;
+            a.set_state(val);
         }
     }
 

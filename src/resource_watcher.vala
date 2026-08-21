@@ -104,9 +104,11 @@ namespace Leaftop {
             cpuStats[0].update(lines[0], numCpus);
             for (int i = 1; i < numCpus+1; i++) {
                 cpuStats[i].update(lines[i], 1);
+                pageProcessor.cpuCharts[i-1].DataPoints2[pageProcessor.cpuCharts[i-1].DataStart] = cpuStats[i].cpuUtilSys;
                 pageProcessor.cpuCharts[i-1].push_value(cpuStats[i].cpuUtil);
             }
 
+            pageProcessor.singleChart.DataPoints2[pageProcessor.singleChart.DataStart] = cpuStats[0].cpuUtilSys;
             pageProcessor.singleChart.push_value(cpuStats[0].cpuUtil);
             btnProcessor.chart.push_value(cpuStats[0].cpuUtil);
             btnProcessor.Status = "%.0f %%".printf(cpuStats[0].cpuUtil*100.0f);
@@ -240,7 +242,9 @@ namespace Leaftop {
         long cpuSystem;
         long cpuTotalTime;
         long prevCpuTime;
+        long prevCpuTimeSys;
         float cpuUtil;
+        float cpuUtilSys;
 
         public void update(string line, int num_cpus) {
             var split = Utils.splitStr(line, " ");
@@ -248,10 +252,14 @@ namespace Leaftop {
             cpuNice = long.parse(split[2]);
             cpuSystem = long.parse(split[3]);
             cpuTotalTime = cpuUser + cpuNice + cpuSystem;
-            if (prevCpuTime == 0)
+            if (prevCpuTime == 0) {
                 prevCpuTime = cpuTotalTime;
+                prevCpuTimeSys = cpuSystem;
+            }
             cpuUtil = (float)(cpuTotalTime - prevCpuTime) / ProcessWatcher.CLK_TCK / num_cpus;
+            cpuUtilSys = (float)(cpuSystem - prevCpuTimeSys) / ProcessWatcher.CLK_TCK / num_cpus;
             prevCpuTime = cpuTotalTime;
+            prevCpuTimeSys = cpuSystem;
         }
     }
 
