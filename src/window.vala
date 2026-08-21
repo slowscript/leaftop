@@ -68,27 +68,35 @@ namespace Leaftop {
             column_view.show_column_separators = true;
             
             var column_pid = new Gtk.ColumnViewColumn(_("PID"), column_pid_factory);
+            column_pid.id = "0";
             column_pid.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "PID"));;
             column_pid.fixed_width = 55;
             this.column_view.append_column(column_pid);
             var column_name = new Gtk.ColumnViewColumn(_("Process"), column_name_factory);
+            column_name.id = "1";
             column_name.sorter = new Gtk.StringSorter(new Gtk.PropertyExpression(typeof(Process), null, "Name"));
             column_name.expand = true;
             this.column_view.append_column(column_name);
             var column_cpu = new Gtk.ColumnViewColumn(_("CPU%"), column_cpu_factory);
+            column_cpu.id = "2";
             column_cpu.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "CpuTreeUtil"));
             column_cpu.fixed_width = 50;
             this.column_view.append_column(column_cpu);
             var column_mem = new Gtk.ColumnViewColumn(_("Memory"), column_mem_factory);
+            column_mem.id = "3";
             column_mem.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "MemTreeUsage"));
             column_mem.fixed_width = 80;
             this.column_view.append_column(column_mem);
             var column_disk = new Gtk.ColumnViewColumn(_("Disk"), column_disk_factory);
+            column_disk.id = "4";
             column_disk.sorter = new Gtk.NumericSorter(new Gtk.PropertyExpression(typeof(Process), null, "DiskTreeUtil"));
             column_disk.fixed_width = 80;
             this.column_view.append_column(column_disk);
-            // TODO: Restore last sort from settings
-            this.column_view.sort_by_column((Gtk.ColumnViewColumn)column_view.columns.get_item(3), Gtk.SortType.DESCENDING);
+            this.column_view.sorter.changed.connect(on_sorter_changed);
+            // Restore last sort from settings
+            int sort_column_id = settings.get_int("process-sort-column");
+            int sort_order = settings.get_int("process-sort-order");
+            this.column_view.sort_by_column((Gtk.ColumnViewColumn)column_view.columns.get_item(sort_column_id), sort_order);
 
             string grouping_str = settings.get_string("process-grouping");
             if (!(grouping_str in ProcessGroupings))
@@ -187,6 +195,18 @@ namespace Leaftop {
 
         private void on_show_proc_props(SimpleAction a) {
             print("Show proc props\n");
+        }
+
+        private void on_sorter_changed(Gtk.SorterChange change) {
+            var sorter = (Gtk.ColumnViewSorter)column_view.sorter;
+            var column = sorter.get_primary_sort_column();
+            int id = int.parse(column.id);
+            // Only write setting if it changes (it's expensive)
+            if (id != settings.get_int("process-sort-column"))
+                settings.set_int("process-sort-column", id);
+            var order = sorter.get_primary_sort_order();
+            if (order != settings.get_int("process-sort-order"))
+                settings.set_int("process-sort-order", order);
         }
 
         private void setup_signal_menu() {

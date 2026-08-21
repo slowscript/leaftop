@@ -16,5 +16,11 @@
 		<key name="cpu-chart-show-system" type="b">
 			<default>false</default>
 		</key>
+		<key name="process-sort-column" type="i">
+			<default>3</default>
+		</key>
+		<key name="process-sort-order" type="i">
+			<default>1</default>
+		</key>
 	</schema>
 </schemalist>
