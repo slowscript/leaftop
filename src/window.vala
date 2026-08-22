@@ -194,7 +194,12 @@ namespace Leaftop {
         }
 
         private void on_show_proc_props(SimpleAction a) {
-            print("Show proc props\n");
+            Process? p = get_selected_process();
+            if (p == null)
+                return;
+            var pw = new ProcessWindow();
+            pw.set_process(p);
+            pw.show();
         }
 
         private void on_sorter_changed(Gtk.SorterChange change) {
@@ -309,7 +314,7 @@ namespace Leaftop {
             }
             ProcessNameCell widget = (ProcessNameCell)expander.child;
             widget.Icon = proc.Icon;
-            widget.tooltip_text = proc.CmdLine;//[:100];
+            widget.tooltip_text = proc.CmdLine;
             var binding = proc.bind_property("Name", expander.child, "Name", BindingFlags.SYNC_CREATE);
             obj.set_data("binding", binding);
         }

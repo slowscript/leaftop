@@ -1,5 +1,5 @@
 namespace Leaftop {
-    class Process : Object {
+    public class Process : Object {
 
         public int PID { get; private set; }
         public int ParentID = 0; // 0 = no parent
@@ -9,24 +9,37 @@ namespace Leaftop {
         public string CmdLine { get; private set; }
         public string ExeName { get; private set; }
         public Icon Icon { get; set; }
+
+        // Int values in kB
         public int MemUsage { get; private set; }
         public int MemTreeUsage { get; private set; }
         public string MemString { get; private set; }
+        public int MemRSS;
+        public int MemVirtual;
+        public int MemShared;
+        
+        public long CpuTime = 0; // In ticks!
         public float CpuUtil { get; private set; }
         public float CpuTreeUtil { get; private set; }
         public string CpuUtilStr { get; private set; }
+        public Posix.Sched.Algorithm Sched;
+        public long Prio;
+        public string CPUAffinity;
+
+        public long DiskRead;
+        public long DiskWrite;
         public float DiskUtil { get; private set; }
         public float DiskTreeUtil { get; private set; }
         public string DiskUtilStr { get; private set; }
+        
         public int NumThreads;
         public string? CGroup;
         public string? FlatpakID;
         public string? ExePath;
+        public string State;
         public bool expanded = false;
 
         private string[] status;
-        private string? rssAnon;
-        private long prevCpuTime = 0;
         private long prevDiskRW = 0;
 
         public Process(int pid) {
@@ -48,7 +61,8 @@ namespace Leaftop {
                     ExePath = exeinfo.get_symlink_target();
                 }
             } catch (Error e) {
-                print("Could not get exepath for %s: %s\n", ExeName, e.message);
+                if (e.code != Posix.ENOENT && e.code != Posix.EINTR)
+                    print("Could not get exepath for %s: %s (%d)\n", ExeName, e.message, e.code);
             }
             CGroup = readProcFile("cgroup");
             if (CGroup != null && CGroup != ""){
@@ -57,7 +71,7 @@ namespace Leaftop {
                 if (last.has_prefix("app-flatpak-") && last.has_suffix(".scope"))
                     FlatpakID = last.split("-")[2];
             }
-            prevCpuTime = getCpuTime();
+            CpuTime = getCpuTime();
             prevDiskRW = getDiskRWTotal();
             update();
         }
@@ -75,16 +89,30 @@ namespace Leaftop {
             else
                 this.Name = n;
             this.ParentID = int.parse(getStatusValue("PPid"));
-            this.rssAnon = getStatusValue("RssAnon");
-            if (rssAnon != null)
-                this.MemUsage = int.parse(rssAnon.split(" ")[0]);
-            else
-                this.MemUsage = 0;
+            this.State = getStatusValue("State");
+            
+            this.MemUsage = int.parse(getStatusValue("RssAnon")?.split(" ")?[0] ?? "0");
+            this.MemVirtual = int.parse(getStatusValue("VmSize")?.split(" ")?[0] ?? "0");
+            this.MemShared = int.parse(getStatusValue("RssShmem")?.split(" ")?[0] ?? "0") +
+                                int.parse(getStatusValue("RssFile")?.split(" ")?[0] ?? "0");
+            this.MemRSS = int.parse(getStatusValue("VmRSS")?.split(" ")?[0] ?? "0");
+            
             this.NumThreads = int.parse(getStatusValue("Threads"));
-            long cpuTime = getCpuTime();
-            float utilTime = (cpuTime - prevCpuTime) / (float)ProcessWatcher.CLK_TCK;
+            long newCpuTime = getCpuTime();
+            float utilTime = (newCpuTime - CpuTime) / (float)ProcessWatcher.CLK_TCK;
             CpuUtil = utilTime / (ProcessWatcher.UPDATE_INTERVAL / 1000.0f) * 100.0f;
-            prevCpuTime = cpuTime;
+            CpuTime = newCpuTime;
+
+            string? statstr = readProcFile("stat");
+            if (statstr == null) return false;
+            // Process name is enclosed in ( ) and might contain spaces
+            int start = statstr.index_of(")", 2);
+            statstr = statstr.slice(start + 2, statstr.length);
+            string[] stat = statstr.split(" ");
+            Prio = long.parse(stat[17-2]);
+            Sched = (Posix.Sched.Algorithm)uint.parse(stat[40-2]);
+            CPUAffinity = getStatusValue("Cpus_allowed_list");
+
             long disk = getDiskRWTotal();
             long diskDif = disk - prevDiskRW;
             DiskUtil = diskDif / (ProcessWatcher.UPDATE_INTERVAL / 1000.0f);
@@ -106,13 +134,13 @@ namespace Leaftop {
             this.CpuTreeUtil = treeCpu;
             this.DiskTreeUtil = treeDisk;
             if (Parent == null && Children.size > 0) {
-                this.MemString = rssAnon != null ? "<small>%s</small>\n<span size=\"x-small\">%s</span>"
+                this.MemString = MemUsage != 0 ? "<small>%s</small>\n<span size=\"x-small\">%s</span>"
                     .printf(Utils.humanSize(MemTreeUsage), Utils.humanSize(MemUsage))
                     : "N/A";
                 this.CpuUtilStr = "<small>%.1f</small>\n<span size=\"x-small\">%.1f</span>".printf(CpuTreeUtil, CpuUtil);
                 this.DiskUtilStr = @"<small>$(Utils.humanSize(DiskTreeUtil / 1000.0f))/s</small>\n<span size=\"x-small\">$(Utils.humanSize(DiskUtil / 1000.0f))/s</span>";
             } else {
-                this.MemString = rssAnon != null ? @"<small>$(Utils.humanSize(MemUsage))</small>" : "N/A";
+                this.MemString = MemUsage != 0 ? @"<small>$(Utils.humanSize(MemUsage))</small>" : "N/A";
                 this.CpuUtilStr = "%.1f".printf(CpuUtil);
                 this.DiskUtilStr = "<small>" + Utils.humanSize(DiskUtil / 1000.0f) + "/s</small>";
             }
@@ -148,9 +176,9 @@ namespace Leaftop {
             if (io == null)
                 return 0;
             var lines = io.split("\n");
-            long read = long.parse(lines[4].split(": ")[1], 10);
-            long write = long.parse(lines[5].split(": ")[1], 10);
-            return read + write;
+            DiskRead = long.parse(lines[4].split(": ")[1], 10);
+            DiskWrite = long.parse(lines[5].split(": ")[1], 10);
+            return DiskRead + DiskWrite;
         }
 
         private string? getStatusValue(string key) {

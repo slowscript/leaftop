@@ -5,6 +5,7 @@ leaftop_sources = [
   'window.vala',
   'process.vala',
   'process_watcher.vala',
+  'process_window.vala',
   'process_name_cell.vala',
   'chart_widget.vala',
   'chart_button.vala',
@@ -43,7 +44,7 @@ configure_file(
 
 executable('leaftop', leaftop_sources,
   c_args: [
-    '-DGETTEXT_PACKAGE="leaftop"', '-Wno-unused', '-Wno-discarded-qualifiers'
+    '-DGETTEXT_PACKAGE="leaftop"', '-D_GNU_SOURCE', '-Wno-unused', '-Wno-discarded-qualifiers',
   ],
   dependencies: leaftop_deps,
        install: true,
