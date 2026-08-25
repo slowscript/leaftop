@@ -24,6 +24,7 @@ namespace Leaftop {
         private Gtk.SingleSelection listSelection;
         private ResourceWatcher resource_watcher;
         private Gtk.PopoverMenu proc_popover;
+        private unowned ProcessWindow proc_window;
 
         public Window (Gtk.Application app) {
             Object (application: app);
@@ -64,6 +65,7 @@ namespace Leaftop {
             listSelection = new Gtk.SingleSelection(sort_model);
             listSelection.can_unselect = true;
             listSelection.autoselect = false;
+            listSelection.selection_changed.connect(on_proc_selection_changed);
             column_view.model = listSelection;
             column_view.show_column_separators = true;
             
@@ -200,6 +202,8 @@ namespace Leaftop {
             var pw = new ProcessWindow();
             pw.set_process(p);
             pw.show();
+            ((Gtk.Widget)pw).destroy.connect(() => { proc_window = null; });
+            proc_window = pw;
         }
 
         private void on_sorter_changed(Gtk.SorterChange change) {
@@ -226,6 +230,14 @@ namespace Leaftop {
                 return null;
             var itm = (Gtk.TreeListRow)listSelection.selected_item;
             return (Process)itm.item;
+        }
+
+        public void on_proc_selection_changed(uint pos, uint n) {
+            if (proc_window != null) {
+                var p = get_selected_process();
+                if (p != null)
+                    proc_window.set_process(p);
+            }
         }
 
         public void on_proc_right_click(uint pos, Gtk.Widget parent, int x, int y) {
