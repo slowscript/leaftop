@@ -110,6 +110,7 @@ namespace Leaftop {
                 { "set-custom-nice", this.on_set_custom_nice },
                 { "set-process-grouping", this.on_set_grouping, "s", grouping_v },
                 { "proc-props", this.on_show_proc_props },
+                { "proc-ungroup", this.on_ungroup_proc },
             };
             this.add_action_entries(action_entries, this);
             this.setup_signal_menu();
@@ -130,6 +131,7 @@ namespace Leaftop {
 
             Menu proc_menu = new Menu();
             proc_menu.append(_("Properties"), "win.proc-props");
+            proc_menu.append(_("Ungroup children"), "win.proc-ungroup");
             Menu sig_section = new Menu();
             sig_section.append(_("Stop"), "win.send-signal::sigstop");
             sig_section.append(_("Resume"), "win.send-signal::sigcont");
@@ -204,6 +206,13 @@ namespace Leaftop {
             pw.show();
             ((Gtk.Widget)pw).destroy.connect(() => { proc_window = null; });
             proc_window = pw;
+        }
+
+        private void on_ungroup_proc(SimpleAction a) {
+            Process? p = get_selected_process();
+            if (p == null)
+                return;
+            watcher.ungroup_children_of(p);
         }
 
         private void on_sorter_changed(Gtk.SorterChange change) {
@@ -311,7 +320,8 @@ namespace Leaftop {
             Process proc = (Process)row.item;
             expander.hide_expander = proc.Children.size == 0;
             bool newRowToExpand = false;
-            if (watcher.grouping != ProcessGrouping.TREE && (row.depth == 0) && !proc.expanded) {
+            if (watcher.grouping != ProcessGrouping.TREE && watcher.grouping != ProcessGrouping.FLAT
+                    && (row.depth == 0) && !proc.expanded) {
                 proc.expanded = true;
                 rowsToExpand.append(row);
                 newRowToExpand = true;

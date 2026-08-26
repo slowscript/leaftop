@@ -87,6 +87,15 @@ namespace Leaftop {
             initProcessLists();
         }
 
+        public void ungroup_children_of(Process p) {
+            if (grouping == ProcessGrouping.FLAT)
+                return; // Do nothing, process grouping does not show children
+            CommonRoots += p.Name;
+
+            // Apply grouping (and switch to Simple if not already)
+            setGrouping(ProcessGrouping.SIMPLE);
+        }
+
         private List<int> loadAllPIDs() throws Error {
             List<int> pids = new List<int>();
             File procdir = File.new_for_path("/proc");
