@@ -87,7 +87,7 @@ namespace Leaftop {
             lblDiskR.label = Utils.humanSize(proc.DiskRead/1024);
             lblDiskW.label = Utils.humanSize(proc.DiskWrite/1024);
 
-            txtCmdLine.buffer.text = proc.CmdLine;
+            txtCmdLine.buffer.text = proc.CmdLineStr;
             return true;
         }
     }

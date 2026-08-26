@@ -6,7 +6,8 @@ namespace Leaftop {
         public weak Process? Parent = null;
         public Gee.ArrayList<weak Process> Children = new Gee.ArrayList<weak Process>();
         public string Name { get; private set; }
-        public string CmdLine { get; private set; }
+        public string[]? CmdLine { get; private set; }
+        public string? CmdLineStr { get; private set; }
         public string ExeName { get; private set; }
         public Icon Icon { get; set; }
 
@@ -45,9 +46,9 @@ namespace Leaftop {
         public Process(int pid) {
             PID = pid;
             CmdLine = readCmdLine();
-            if (CmdLine != null && CmdLine != "") {
-                var args = CmdLine.split(" ");
-                var exePath = args[0].split("/");
+            CmdLineStr = string.joinv(" ", CmdLine);
+            if (CmdLine != null) {
+                var exePath = CmdLine[0].split("/");
                 if (exePath.length > 0) {
                     ExeName = exePath[exePath.length-1];
                 } else ExeName = "";
@@ -207,22 +208,28 @@ namespace Leaftop {
             return res;
         }
 
-        private string? readCmdLine() {
+        private string[]? readCmdLine() {
             string path = GLib.Path.build_filename("/proc", PID.to_string(), "cmdline");
-            string res = null;
+            Gee.ArrayList<string> parts = new Gee.ArrayList<string>();
             try {
                 uint8[] data = null;
                 GLib.FileUtils.get_data(path, out data);
+                int last = 0;
                 for (int i = 0; i < data.length; i++) {
-                    if (data[i] == 0)
-                        data[i] = ' '; //FIXME: Should return array of strings split at this point - arguments can contain spaces!
+                    if (data[i] == 0) {
+                        // strip creates copy
+                        string str = ((string)data[last:i+1]).strip();
+                        if (str.length > 0)
+                            parts.add(str);
+                        last = i+1;
+                    }
                 }
-                res = (string)data;
-                res = res.chomp();
+                return parts.to_array();
             } catch (FileError err) {
-                print("Could not read %s: %s\n", path, err.message);
+                if (err.code != Posix.ENOENT && err.code != Posix.EINTR)
+                    print("Could not read %s: %s (%d)\n", path, err.message, err.code);
+                return null;
             }
-            return res;
         }
     }
 }

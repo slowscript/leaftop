@@ -326,7 +326,7 @@ namespace Leaftop {
             }
             ProcessNameCell widget = (ProcessNameCell)expander.child;
             widget.Icon = proc.Icon;
-            widget.tooltip_text = proc.CmdLine;
+            widget.tooltip_text = proc.CmdLineStr;
             var binding = proc.bind_property("Name", expander.child, "Name", BindingFlags.SYNC_CREATE);
             obj.set_data("binding", binding);
         }

@@ -27,6 +27,7 @@ namespace Leaftop {
         
         private Gee.HashMap<int, Process> processes;
         private Gee.HashMap<string, AppInfo> installedApps = new Gee.HashMap<string, AppInfo>();
+        private Gtk.IconTheme installedIcons;
 
         public static int numProcesses = 0;
         public static int numThreads = 0;
@@ -48,6 +49,7 @@ namespace Leaftop {
                 if (exe != null && exe != "sh" && exe != "env")
                     installedApps.set(exe, app);
             }
+            installedIcons = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
         }
 
         void initProcessLists() {
@@ -129,15 +131,25 @@ namespace Leaftop {
         private Icon get_icon(Process p) {
             AppInfo app = installedApps.get(p.FlatpakID);
             if (app != null) {
-                return app.get_icon();
+                var ico = app.get_icon();
+                if (ico != null) return ico;
             }
             app = installedApps.get(p.ExeName);
             if (app != null) {
-                return app.get_icon();
+                var ico = app.get_icon();
+                if (ico != null) return ico;
             }
+            app = installedApps.get(p.CmdLine?[0]);
+            if (app != null) {
+                var ico = app.get_icon();
+                if (ico != null) return ico;
+            } 
+            if (installedIcons.has_icon(p.Name))
+                return new ThemedIcon(p.Name);
             app = installedApps.get(p.ExePath);
             if (app != null) {
-                return app.get_icon();
+                var ico = app.get_icon();
+                if (ico != null) return ico;
             } 
             return new ThemedIcon("application-x-executable");
         }
