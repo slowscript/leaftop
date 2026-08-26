@@ -20,7 +20,10 @@ namespace Leaftop {
         public const int UPDATE_INTERVAL = 2000;
         public static long CLK_TCK;
 
-        const string[] CommonRoots = {"systemd", "cinnamon", "cinnamon-launcher", "cinnamon-session", "cinnamon-session-binary", "lightdm"};
+        string[] CommonRoots = {"systemd", "init", "dinit", "lightdm",
+            "cinnamon", "cinnamon-launcher", "cinnamon-session", "cinnamon-session-binary",
+            "gnome-shell", "xfce4-session", "xfce4-panel", "mate-session", "mate-panel", "lxsession", "lxpanel",
+            "plasmashell", "lxqt-session" };
         private ListStore listStore;
         public Gee.HashMap<int, ListStore> childStores = new Gee.HashMap<int, ListStore>();
         public ProcessGrouping grouping = ProcessGrouping.SIMPLE;
