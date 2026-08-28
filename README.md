@@ -1,6 +1,6 @@
 # Leaftop
 
-A graphical [top](https://en.wikipedia.org/wiki/Top_(software))-style Linux system monitor program with simple process tree grouping and additional system statistics.
+A graphical table of processes (top) and system monitor for Linux with better process tree grouping and detailed system statistics.
 
 Made with plain GTK 4 (no libadwaita).
 
@@ -9,7 +9,7 @@ Made with plain GTK 4 (no libadwaita).
 - Process table with better grouping
   - Simple groups (processes under known launchers), flat list, full tree, by CGroup
 - Resources page with graphs and some useful details, network and disk stats split by device
-- Setting process priority, scheduling options (WIP)
+- Setting process priority and scheduling options (WIP)
 - Detailed process information, open files, network connections (WIP)
 - Per-process network usage (WIP)
 
