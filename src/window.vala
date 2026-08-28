@@ -142,6 +142,17 @@ namespace Leaftop {
             proc_popover = new Gtk.PopoverMenu.from_model(proc_menu);
             proc_popover.set_parent(column_view);
             proc_popover.set_has_arrow (false);
+            var right_click = new Gtk.GestureClick();
+            right_click.set_button(3); // Right click
+            right_click.pressed.connect((n_press, x, y) => {
+                var rect = Gdk.Rectangle() {
+                    x = (int)x, y = (int)y,
+                    width = 1, height = 1
+                };
+                this.proc_popover.set_pointing_to(rect);
+                this.proc_popover.popup();
+            });
+            column_view.add_controller(right_click);
         }
 
         private void on_send_signal(SimpleAction a, Variant? param) {
@@ -251,14 +262,8 @@ namespace Leaftop {
 
         public void on_proc_right_click(uint pos, Gtk.Widget parent, int x, int y) {
             this.listSelection.set_selected(pos);
-            var rect = Gdk.Rectangle() {
-                x = x, y = y,
-                width = 1, height = 1
-            };
-            this.proc_popover.unparent();
-            this.proc_popover.set_parent(parent);
-            this.proc_popover.set_pointing_to(rect);
-            this.proc_popover.popup();
+            // Popup menu displayed from ColumnView-level event
+            // Making the row the parent of the menu (needed for rel coords) caused theming issues
         }
 
         delegate void InputDialogResult(string res);
