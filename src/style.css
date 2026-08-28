@@ -36,3 +36,10 @@ closablecard button {
     background: none;
     border: none;
 }
+
+.padded-dialog {
+    padding: 10px;
+}
+.padded-dialog button {
+    margin-left: 10px;
+}

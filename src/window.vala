@@ -267,12 +267,15 @@ namespace Leaftop {
             dialog.set_transient_for (this);
             dialog.set_modal (true);
             dialog.set_title (title);
+            dialog.set_default_size(250, 50);
+            dialog.add_css_class("padded-dialog");
 
             dialog.add_button (_("Cancel"), Gtk.ResponseType.CANCEL);
             dialog.add_button (_("OK"), Gtk.ResponseType.OK);
 
             var entry = new Gtk.Entry ();
             var content = dialog.get_content_area ();
+            content.margin_bottom = 10;
             content.append (entry);
 
             dialog.response.connect ((resp) => {
