@@ -72,7 +72,6 @@ namespace Leaftop {
         void on_settings_changed(string key) {
             if (key == "process-group-roots") {
                 loadProcessLaunchers();
-                print("load\n");
                 // Update list
                 setGrouping(grouping);
             }

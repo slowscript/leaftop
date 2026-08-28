@@ -14,7 +14,10 @@ namespace Leaftop {
             
             settings = new Settings("xyz.slowscript.leaftop");
             var roots = settings.get_strv("process-group-roots");
-            launchers.add_all_array(roots);
+            if (roots.length != 0)
+                launchers.add_all_array(roots);
+            else
+                launchers.add_all_array(ProcessWatcher.ProcessLaunchersDefault);
 
             populate_launchers();
         }

@@ -1,3 +1,16 @@
+leaftop (1.0) unstable; urgency=medium
+
+  * Added process right-click menu
+  * Added process properties window
+  * Option to show system time in CPU chart
+  * Simple grouping is now configurable by the user
+  * Simple grouping now configured for more desktop environments by default
+  * Preserve grouping and other settings across restarts
+  * Improved getting process icons
+  * UI improvements
+
+ -- slowscript <slowscript@seznam.cz>  Wed, 28 Aug 2026 18:30:00 +0200 
+
 leaftop (0.2) unstable; urgency=medium
 
   * Added details to resource pages
