@@ -21,3 +21,18 @@ levelbar block.filled {
 treeexpander indent {
 	-gtk-icon-size: 16px;
 }
+
+closablecard {
+    border-radius: 4px;
+    background-color: rgba(128, 128, 128, 0.15);
+}
+
+closablecard button:hover {
+    background-color: rgba(128, 128, 128, 0.3);
+}
+
+closablecard button {
+    padding: 0;
+    background: none;
+    border: none;
+}

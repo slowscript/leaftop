@@ -41,7 +41,10 @@ namespace Leaftop {
         }
 
         private void on_preferences_action () {
-            message ("app.preferences action activated");
+            var pw = new PreferenceWindow();
+            pw.set_modal(true);
+            pw.set_transient_for(this.active_window);
+            pw.show();
         }
     }
 }

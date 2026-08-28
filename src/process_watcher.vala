@@ -20,10 +20,11 @@ namespace Leaftop {
         public const int UPDATE_INTERVAL = 2000;
         public static long CLK_TCK;
 
-        string[] CommonRoots = {"systemd", "init", "dinit", "lightdm",
+        public const string[] ProcessLaunchersDefault = {"systemd", "init", "dinit", "lightdm",
             "cinnamon", "cinnamon-launcher", "cinnamon-session", "cinnamon-session-binary",
             "gnome-shell", "xfce4-session", "xfce4-panel", "mate-session", "mate-panel", "lxsession", "lxpanel",
             "plasmashell", "lxqt-session" };
+        string[] ProcessLaunchers = ProcessLaunchersDefault;
         private ListStore listStore;
         public Gee.HashMap<int, ListStore> childStores = new Gee.HashMap<int, ListStore>();
         public ProcessGrouping grouping = ProcessGrouping.SIMPLE;
@@ -36,6 +37,8 @@ namespace Leaftop {
         public static int numThreads = 0;
 
         internal weak Gtk.Sorter mSorter;
+
+        private Settings settings;
 
         public ProcessWatcher(ListStore store) {
             listStore = store;
@@ -53,6 +56,26 @@ namespace Leaftop {
                     installedApps.set(exe, app);
             }
             installedIcons = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
+            settings = new Settings("xyz.slowscript.leaftop");
+            loadProcessLaunchers();
+            settings.changed.connect(on_settings_changed);
+        }
+
+        void loadProcessLaunchers() {
+            var roots = settings.get_strv("process-group-roots");
+            if (roots.length == 0)
+                ProcessLaunchers = ProcessLaunchersDefault;
+            else
+                ProcessLaunchers = roots;
+        }
+
+        void on_settings_changed(string key) {
+            if (key == "process-group-roots") {
+                loadProcessLaunchers();
+                print("load\n");
+                // Update list
+                setGrouping(grouping);
+            }
         }
 
         void initProcessLists() {
@@ -90,10 +113,15 @@ namespace Leaftop {
         public void ungroup_children_of(Process p) {
             if (grouping == ProcessGrouping.FLAT)
                 return; // Do nothing, process grouping does not show children
-            CommonRoots += p.Name;
+            if (p.Name in ProcessLaunchers)
+                return;
 
-            // Apply grouping (and switch to Simple if not already)
-            setGrouping(ProcessGrouping.SIMPLE);
+            string[] new_roots = new string[ProcessLaunchers.length+2];
+            for (int i = 0; i < ProcessLaunchers.length; i++)
+                new_roots[i] = ProcessLaunchers[i];
+            new_roots[ProcessLaunchers.length] = p.Name;
+            new_roots[ProcessLaunchers.length+1] = null; // null terminated array
+            settings.set_strv("process-group-roots", new_roots);
         }
 
         private List<int> loadAllPIDs() throws Error {
@@ -125,7 +153,7 @@ namespace Leaftop {
             if (p.ParentID in processes.keys) {
                 Process parent = processes[p.ParentID];
                 if (grouping == ProcessGrouping.FLAT
-                    || (grouping == ProcessGrouping.SIMPLE && parent.Name in CommonRoots)
+                    || (grouping == ProcessGrouping.SIMPLE && parent.Name in ProcessLaunchers)
                     || (grouping == ProcessGrouping.CGROUP && parent.CGroup != p.CGroup)) {
                     p.Parent = null;
                     isRoot = true;

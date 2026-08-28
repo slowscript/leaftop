@@ -22,5 +22,8 @@
 		<key name="process-sort-order" type="i">
 			<default>1</default>
 		</key>
+		<key name="process-group-roots" type="as">
+			<default>[]</default>
+		</key>
 	</schema>
 </schemalist>

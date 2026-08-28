@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <template class="LeaftopPreferenceWindow" parent="GtkWindow">
+    <property name="title" translatable="yes">Preferences</property>
+    <property name="default-width">400</property>
+    <property name="default-height">400</property>
+    <property name="child">
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="margin-start">10</property>
+        <property name="margin-end">10</property>
+        <property name="margin-top">5</property>
+        <property name="margin-bottom">10</property>
+        <property name="spacing">5</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">Process group launchers (simple grouping)</property>
+            <property name="xalign">0.0</property>
+            <style><class name="bold"/></style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkFlowBox" id="boxLaunchers">
+            <property name="homogeneous">False</property>
+            <property name="selection-mode">none</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="btnResetLaunchers">
+            <property name="label" translatable="yes">Reset</property>
+            <property name="halign">start</property>
+          </object>
+        </child>
+      </object>
+    </property>
+  </template>
+</interface>
