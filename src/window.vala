@@ -178,12 +178,12 @@ namespace Leaftop {
         }
 
         private void on_set_custom_nice(SimpleAction a) {
-            show_input_dialog(_("Enter custom priority (nice)"), (res) => {
+            show_input_dialog(_("Enter custom Nice value"), (res) => {
                 int nice;
                 if (int.try_parse(res, out nice) && nice >= -20 && nice <= 19) {
                     activate_action_variant("win.set-nice", new GLib.Variant.int32(nice));
                 } else {
-                    new Gtk.AlertDialog(_("Priority must be a number between -20 (highest) and 19 (lowest)")).show(this);
+                    new Gtk.AlertDialog(_("Nice value must be a number between -20 (highest priority) and 19 (lowest)")).show(this);
                 }
             });
         }

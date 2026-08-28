@@ -1,14 +1,14 @@
 # Czech translations for leaftop package.
-# Copyright (C) 2024 slowscript
+# Copyright (C) 2026 slowscript
 # This file is distributed under the same license as the leaftop package.
-# slowscript, 2024.
+# slowscript, 2026.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: leaftop\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-20 09:45+0200\n"
-"PO-Revision-Date: 2024-08-20 09:18+0200\n"
+"POT-Creation-Date: 2026-08-28 18:53+0200\n"
+"PO-Revision-Date: 2026-08-28 18:23+0200\n"
 "Last-Translator: slowscript\n"
 "Language-Team: none\n"
 "Language: cs\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
-#: data/xyz.slowscript.leaftop.desktop.in:3
+#: data/xyz.slowscript.leaftop.desktop.in:2
 #: data/xyz.slowscript.leaftop.metainfo.xml.in:5
 msgid "Leaftop"
 msgstr ""
@@ -27,8 +27,13 @@ msgid "Graphical process manager and system monitor"
 msgstr "Grafický správce procesů a systémový monitor"
 
 #: data/xyz.slowscript.leaftop.metainfo.xml.in:10
-msgid "No description"
+msgid ""
+"A graphical Linux system monitor program with simple process tree grouping "
+"and additional system statistics. Made with plain GTK 4 (no libadwaita)."
 msgstr ""
+"Grafický systémový monitor pro Linux s jednoduchým seskupováním stromu "
+"procesů a dalšími systémovými statistikami. Vytvořeno s čistým GTK 4 (bez "
+"libadwaita)."
 
 #: src/gtk/help-overlay.ui:11
 msgctxt "shortcut window"
@@ -45,38 +50,473 @@ msgctxt "shortcut window"
 msgid "Quit"
 msgstr "Ukončit"
 
-#: src/window.vala:44
-msgid "PID"
-msgstr "PID"
+#: src/resource_pages/disk_page.ui:40
+msgid "Speed"
+msgstr "Rychlost"
 
-#: src/window.vala:47
-msgid "Process"
-msgstr "Proces"
+#: src/resource_pages/disk_page.vala:30
+msgid "Active time:"
+msgstr "Aktivní čas:"
 
-#: src/window.vala:51
-msgid "CPU%"
-msgstr "% CPU"
+#: src/resource_pages/disk_page.vala:31
+msgid "Read speed:"
+msgstr "Rychlost čtení:"
 
-#: src/window.vala:54
+#: src/resource_pages/disk_page.vala:32
+msgid "Write speed:"
+msgstr "Rychlost zápisu:"
+
+#: src/resource_pages/disk_page.vala:33
+msgid "Total read:"
+msgstr "Přečteno:"
+
+#: src/resource_pages/disk_page.vala:34
+msgid "Total written:"
+msgstr "Zapsáno:"
+
+#: src/resource_pages/disk_page.vala:35
+msgid "Response time:"
+msgstr "Doba odezvy:"
+
+#: src/resource_pages/disk_page.vala:41
+msgid "Size:"
+msgstr "Velikost:"
+
+#: src/resource_pages/disk_page.vala:43
+msgid "Removable:"
+msgstr "Odpojitelné:"
+
+#: src/resource_pages/disk_page.vala:43 src/resource_pages/disk_page.vala:45
+msgid "Yes"
+msgstr "Ano"
+
+#: src/resource_pages/disk_page.vala:43 src/resource_pages/disk_page.vala:45
+msgid "No"
+msgstr "Ne"
+
+#: src/resource_pages/disk_page.vala:45
+msgid "Read only:"
+msgstr "Jen pro čtení:"
+
+#: src/resource_pages/memory_page.ui:15 src/resource_watcher.vala:33
+#: src/window.vala:87
 msgid "Memory"
 msgstr "Paměť"
 
-#: src/window.vala:57
+#: src/resource_pages/memory_page.ui:40
+msgid "Swap"
+msgstr "Odkládací prostor"
+
+#: src/resource_pages/memory_page.ui:63
+msgid "Memory usage breakdown"
+msgstr "Rozložení paměti"
+
+#: src/resource_pages/memory_page.vala:29
+msgid "Used:"
+msgstr "Využitá:"
+
+#: src/resource_pages/memory_page.vala:30
+msgid "Buffer:"
+msgstr "Vyrovnávací paměť:"
+
+#: src/resource_pages/memory_page.vala:31
+msgid "Cache:"
+msgstr "Mezipaměť:"
+
+#: src/resource_pages/memory_page.vala:32
+msgid "Available:"
+msgstr "Dostupná:"
+
+#: src/resource_pages/memory_page.vala:33
+msgid "Used swap:"
+msgstr "Využitý odkládací prostor:"
+
+#: src/resource_pages/memory_page.vala:61
+msgid "Installed size:"
+msgstr "Velikost:"
+
+#: src/resource_pages/memory_page.vala:63
+msgid "Speed:"
+msgstr "Rychlost:"
+
+#: src/resource_pages/memory_page.vala:63
+#, c-format
+msgid "%d MT/s"
+msgstr ""
+
+#: src/resource_pages/memory_page.vala:64
+#: src/resource_pages/network_page.vala:32
+msgid "Type:"
+msgstr "Typ:"
+
+#: src/resource_pages/memory_page.vala:65
+msgid "Form factor:"
+msgstr "Formát:"
+
+#: src/resource_pages/memory_page.vala:66
+msgid "Used slots:"
+msgstr "Obsazené sloty:"
+
+#: src/resource_pages/network_page.vala:26
+msgid "Download speed:"
+msgstr "Rychlost přijímání:"
+
+#: src/resource_pages/network_page.vala:27
+msgid "Upload speed:"
+msgstr "Rychlost odesílání"
+
+#: src/resource_pages/network_page.vala:28
+msgid "Download total:"
+msgstr "Přijato:"
+
+#: src/resource_pages/network_page.vala:29
+msgid "Upload total:"
+msgstr "Odesláno:"
+
+#: src/resource_pages/network_page.vala:33
+msgid "Link speed:"
+msgstr "Rychlost linky:"
+
+#: src/resource_pages/network_page.vala:34
+msgid "MAC address:"
+msgstr "MAC adresa:"
+
+#: src/resource_pages/network_page.vala:35
+msgid "IP addresses:"
+msgstr "IP adresy:"
+
+#: src/resource_pages/processor_page.ui:15 src/resource_watcher.vala:27
+msgid "Processor"
+msgstr "Procesor"
+
+#: src/resource_pages/processor_page.vala:45
+msgid "Split by logical CPUs"
+msgstr "Rozdělit podle logických CPU"
+
+#: src/resource_pages/processor_page.vala:46
+msgid "Show system time percentage"
+msgstr "Zobrazit podíl času v jádře"
+
+#: src/resource_pages/processor_page.vala:63
+msgid "Usage:"
+msgstr "Využití:"
+
+#: src/resource_pages/processor_page.vala:64
+msgid "Frequency:"
+msgstr "Frekvence:"
+
+#: src/resource_pages/processor_page.vala:65
+msgid "Processes:"
+msgstr "Procesy:"
+
+#: src/resource_pages/processor_page.vala:66
+#: src/resource_pages/processor_page.vala:100
+msgid "Threads:"
+msgstr "Vlákna:"
+
+#: src/resource_pages/processor_page.vala:67
+msgid "Descriptors:"
+msgstr "Popisovače:"
+
+#: src/resource_pages/processor_page.vala:68
+msgid "Uptime:"
+msgstr "Čas od spuštění:"
+
+#. Second column (static info)
+#. Base and max clock
+#: src/resource_pages/processor_page.vala:92
+msgid "Base clock:"
+msgstr "Základní takt:"
+
+#: src/resource_pages/processor_page.vala:94
+msgid "Max clock:"
+msgstr "Maximální takt:"
+
+#. Topology
+#: src/resource_pages/processor_page.vala:97
+msgid "Sockets:"
+msgstr "Patice:"
+
+#: src/resource_pages/processor_page.vala:98
+msgid "Dies:"
+msgstr "Čipy:"
+
+#: src/resource_pages/processor_page.vala:99
+msgid "Cores:"
+msgstr "Jádra:"
+
+#: src/resource_pages/processor_page.vala:109
+#, c-format
+msgid "Cache %s:"
+msgstr "Mezipaměť %s:"
+
+#: src/resource_pages/processor_page.vala:110
+#, c-format
+msgid "%s %s-way %s sets"
+msgstr "%s %s-cestá %s bloků"
+
+#: src/preference_window.ui:5
+msgid "Preferences"
+msgstr "Předvolby"
+
+#: src/preference_window.ui:18
+msgid "Process group launchers (simple grouping)"
+msgstr "Spouštěče procesů (jednoduché seskupování)"
+
+#: src/preference_window.ui:31
+msgid "Reset"
+msgstr "Obnovit výchozí"
+
+#: src/process_window.ui:20
+msgid "Command line"
+msgstr "Příkazová řádka"
+
+#: src/process_window.ui:35
+msgid "Info"
+msgstr ""
+
+#: src/process_window.vala:35
+msgid "Name"
+msgstr "Název"
+
+#: src/process_window.vala:36 src/window.vala:72
+msgid "PID"
+msgstr "PID"
+
+#: src/process_window.vala:37
+msgid "Executable path"
+msgstr "Cesta"
+
+#: src/process_window.vala:38
+msgid "User"
+msgstr "Uživatel"
+
+#: src/process_window.vala:39
+msgid "Control group"
+msgstr "Řídicí skupina"
+
+#: src/process_window.vala:40
+msgid "State"
+msgstr "Stav"
+
+#: src/process_window.vala:41 src/window.ui:62
+msgid "Priority"
+msgstr "Priorita"
+
+#: src/process_window.vala:42
+msgid "Threads"
+msgstr "Vlákna"
+
+#: src/process_window.vala:43
+msgid "CPU time"
+msgstr "Čas CPU"
+
+#: src/process_window.vala:44
+msgid "CPU affinity"
+msgstr "Přiřazená CPU"
+
+#: src/process_window.vala:45
+msgid "Virtual memory"
+msgstr "Virtuální paměť"
+
+#: src/process_window.vala:46
+msgid "Resident memory"
+msgstr "Rezidentní paměť"
+
+#: src/process_window.vala:47
+msgid "Shared memory"
+msgstr "Sdílená paměť"
+
+#: src/process_window.vala:48
+msgid "Disk read"
+msgstr "Přečteno z disku"
+
+#: src/process_window.vala:49
+msgid "Disk write"
+msgstr "Zapsáno na disk"
+
+#: src/process_window.vala:82
+#, c-format
+msgid "%.2f s"
+msgstr ""
+
+#: src/resource_watcher.vala:115
+#, c-format
+msgid "CPU: %.1f %%"
+msgstr ""
+
+#: src/resource_watcher.vala:169
+#, c-format
+msgid "Memory: %.1f %%"
+msgstr "Paměť: %.1f %%"
+
+#: src/resource_watcher.vala:190
+#, c-format
+msgid "Disk: %.1f %%"
+msgstr ""
+
+#: src/resource_watcher.vala:200
+#, c-format
+msgid "Network: %s/s"
+msgstr "Síť: %s/s"
+
+#: src/resource_watcher.vala:305
+#, c-format
+msgid "Disk (%s)"
+msgstr "Disk (%s)"
+
+#: src/resource_watcher.vala:351 src/resource_watcher.vala:432
+#, c-format
+msgid "Max: %s/s"
+msgstr ""
+
+#. TODO: option for bps speeds
+#: src/resource_watcher.vala:354 src/resource_watcher.vala:355
+#: src/resource_watcher.vala:435 src/resource_watcher.vala:436
+#, c-format
+msgid "%s/s"
+msgstr ""
+
+#: src/resource_watcher.vala:358
+#, c-format
+msgid "%.2f ms"
+msgstr ""
+
+#: src/resource_watcher.vala:396
+#, c-format
+msgid "Network (%s)"
+msgstr "Síť (%s)"
+
+#: src/resource_watcher.vala:441
+msgid " Mbps"
+msgstr ""
+
+#: src/window.vala:77
+msgid "Process"
+msgstr "Proces"
+
+#: src/window.vala:82
+msgid "CPU%"
+msgstr "% CPU"
+
+#: src/window.vala:92
 msgid "Disk"
 msgstr "Disk"
 
-#: src/window.ui:14
+#: src/window.vala:133
+msgid "Properties"
+msgstr "Podrobnosti"
+
+#: src/window.vala:134
+msgid "Ungroup children"
+msgstr "Odseskupit potomky"
+
+#: src/window.vala:136
+msgid "Stop"
+msgstr "Zastavit"
+
+#: src/window.vala:137
+msgid "Resume"
+msgstr "Pokračovat"
+
+#: src/window.vala:138
+msgid "Terminate"
+msgstr "Ukončit"
+
+#: src/window.vala:139
+msgid "Kill"
+msgstr "Zabít"
+
+#: src/window.vala:181
+msgid "Enter custom Nice value"
+msgstr "Vložte vlastní hodnotu Nice"
+
+#: src/window.vala:186
+msgid ""
+"Nice value must be a number between -20 (highest priority) and 19 (lowest)"
+msgstr ""
+"Hodnota Nice musí být celé číslo mezi -20 (nejvyšší priorita) a 19 (nejnižší)"
+
+#: src/window.vala:273
+msgid "Cancel"
+msgstr "Zrušit"
+
+#: src/window.vala:274
+msgid "OK"
+msgstr ""
+
+#: src/window.ui:19
 msgid "Menu"
 msgstr "Menu"
 
-#: src/window.ui:36
-msgid "_Preferences"
-msgstr "_Možnosti"
+#: src/window.ui:30
+msgid "Processes"
+msgstr "Procesy"
 
-#: src/window.ui:40
+#: src/window.ui:55
+msgid "Signal"
+msgstr "Signál"
+
+#: src/window.ui:105
+msgid "Resources"
+msgstr "Prostředky"
+
+#: src/window.ui:142
+msgid "Process _grouping"
+msgstr "Seskupování procesů"
+
+#: src/window.ui:145
+msgid "Flat list"
+msgstr "Seznam"
+
+#: src/window.ui:150
+msgid "Simple grouping"
+msgstr "Jednoduché skupiny"
+
+#: src/window.ui:155
+msgid "Full tree"
+msgstr "Celý strom"
+
+#: src/window.ui:160
+msgid "By cgroup"
+msgstr "Podle řídicí skupiny"
+
+#: src/window.ui:167
+msgid "_Preferences"
+msgstr "_Předvolby"
+
+#: src/window.ui:171
 msgid "_Keyboard Shortcuts"
 msgstr "_Klávesové zkratky"
 
-#: src/window.ui:44
+#: src/window.ui:175
 msgid "_About leaftop"
 msgstr "_O aplikaci"
+
+#: src/window.ui:182
+msgid "-20 - Very high"
+msgstr "-20 - Velmi vysoká"
+
+#: src/window.ui:187
+msgid "-5 - High"
+msgstr "-5 - Vysoká"
+
+#: src/window.ui:192
+msgid "0 - Normal"
+msgstr "0 - Normální"
+
+#: src/window.ui:197
+msgid "5 - Low"
+msgstr "5 - Nízká"
+
+#: src/window.ui:202
+msgid "19 - Very low"
+msgstr "19 - Velmi nízká"
+
+#: src/window.ui:207
+msgid "Custom"
+msgstr "Vlastní"
+
+#: src/window.ui:211
+msgid "Real-time"
+msgstr "Reálný čas"

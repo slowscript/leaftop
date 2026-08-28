@@ -32,12 +32,12 @@ namespace Leaftop {
         construct {
             detailsGrid = new DetailsGrid();
             page_info.prepend (detailsGrid.grid);
-            lblName = detailsGrid.add_row ("Name", "");
-            lblPID = detailsGrid.add_row ("PID", "");
-            lblExePath = detailsGrid.add_row ("Executable path", "");
-            lblUser = detailsGrid.add_row ("User", "");
-            lblCGroup = detailsGrid.add_row ("Control group", "");
-            lblState = detailsGrid.add_row ("State", "");
+            lblName = detailsGrid.add_row (_("Name"), "");
+            lblPID = detailsGrid.add_row (_("PID"), "");
+            lblExePath = detailsGrid.add_row (_("Executable path"), "");
+            lblUser = detailsGrid.add_row (_("User"), "");
+            lblCGroup = detailsGrid.add_row (_("Control group"), "");
+            lblState = detailsGrid.add_row (_("State"), "");
             lblPriority = detailsGrid.add_row (_("Priority"), "");
             lblThreads = detailsGrid.add_row (_("Threads"), "");
             lblCPUTime = detailsGrid.add_row (_("CPU time"), "");

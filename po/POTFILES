@@ -1,5 +1,16 @@
 data/xyz.slowscript.leaftop.desktop.in
 data/xyz.slowscript.leaftop.metainfo.xml.in
 src/gtk/help-overlay.ui
+src/resource_pages/disk_page.ui
+src/resource_pages/disk_page.vala
+src/resource_pages/memory_page.ui
+src/resource_pages/memory_page.vala
+src/resource_pages/network_page.vala
+src/resource_pages/processor_page.ui
+src/resource_pages/processor_page.vala
+src/preference_window.ui
+src/process_window.ui
+src/process_window.vala
+src/resource_watcher.vala
 src/window.vala
 src/window.ui

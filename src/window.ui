@@ -59,7 +59,7 @@
                     <child>
                       <object class="GtkMenuButton">
                         <property name="icon-name">face-smile-symbolic</property>
-                        <property name="label">Priority</property>
+                        <property name="label" translatable="yes">Priority</property>
                         <property name="direction">GTK_ARROW_UP</property>
                         <property name="menu-model">priority_menu</property>
                       </object>
