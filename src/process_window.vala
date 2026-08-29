@@ -71,7 +71,8 @@ namespace Leaftop {
             title = "%s (%i)".printf(proc.Name, proc.PID);
             lblName.label = proc.Name;
             lblExePath.label = proc.ExePath;
-            lblUser.label = "user (1000)";
+            string username = Posix.getpwuid(proc.RUID)?.pw_name;
+            lblUser.label = "%i (%s), EUID %i".printf(proc.RUID, username, proc.EUID);
             lblCGroup.label = proc.CGroup;
             lblState.label = proc.State;
             if (proc.Prio >= 0)

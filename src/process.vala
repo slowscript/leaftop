@@ -10,6 +10,8 @@ namespace Leaftop {
         public string? CmdLineStr { get; private set; }
         public string ExeName { get; private set; }
         public Icon Icon { get; set; }
+        public int RUID;
+        public int EUID;
 
         // Int values in kB
         public int MemUsage { get; private set; }
@@ -91,6 +93,9 @@ namespace Leaftop {
                 this.Name = n;
             this.ParentID = int.parse(getStatusValue("PPid"));
             this.State = getStatusValue("State");
+            string[] uids = getStatusValue("Uid")?.split("\t");
+            this.RUID = int.parse(uids?[0] ?? "-1");
+            this.EUID = int.parse(uids?[1] ?? "-1");
             
             this.MemUsage = int.parse(getStatusValue("RssAnon")?.split(" ")?[0] ?? "0");
             this.MemVirtual = int.parse(getStatusValue("VmSize")?.split(" ")?[0] ?? "0");
